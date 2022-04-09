@@ -28,7 +28,14 @@ lambda <- 1
 a <- 1/2
 b <- 1/2
 
+# reference 1.
 foo <- bspcov::bmspcov(S=crossprod(X), n=n, Sig=cov(X), a=a, b=b, lambda=lambda, burnin=burnin, nmc=nmc)
+
+# reference 2.
+# cutoff <- list(method="FNR", rho=0.25, FNR=0.05)
+# mcmc <- list(burnin=burnin, nmc=nmc)
+# prior <- list(a=a, b=b, lambda=lambda, tau1sq=log(p)/(p^2*n))
+# foo <- bspcov::sbmspcov(X=X, Sig=cov(X), cutoff=cutoff, mcmc)
 
 est.sig <- apply(foo$Sig, c(1,2), mean)
 Matrix::norm(TrSig - est.sig, type = 'F')/p
