@@ -24,11 +24,9 @@ foo <- bspcov::bmspcov(X, Sigma=cov(X))
 
 # reference 2.
 # cutoff <- list(method="FNR", rho=0.25, FNR=0.05)
-# mcmc <- list(burnin=burnin, nmc=nmc)
-# prior <- list(a=a, b=b, lambda=lambda, tau1sq=log(p)/(p^2*n))
-# foo <- bspcov::sbmspcov(X=X, Sig=cov(X), cutoff=cutoff, mcmc)
+# foo <- bspcov::sbmspcov(X=X, Sigma=cov(X), cutoff=cutoff)
 
-est.sig <- apply(foo$Sig, c(1,2), mean)
+est.sig <- apply(foo$Sigma, c(1,2), mean)
 Matrix::norm(TrSig - est.sig, type = 'F')/p
 
 # variable selection performance
