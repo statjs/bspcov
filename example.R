@@ -19,17 +19,8 @@ iTrSig <- solve(TrSig)
 set.seed(7)
 X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = TrSig)
 
-# mcmc parameters
-burnin <- 5000
-nmc <- 5000
-
-# priors
-lambda <- 1
-a <- 1/2
-b <- 1/2
-
 # reference 1.
-foo <- bspcov::bmspcov(S=crossprod(X), n=n, Sig=cov(X), a=a, b=b, lambda=lambda, burnin=burnin, nmc=nmc)
+foo <- bspcov::bmspcov(X, Sigma=cov(X))
 
 # reference 2.
 # cutoff <- list(method="FNR", rho=0.25, FNR=0.05)
