@@ -26,8 +26,5 @@ foo <- bspcov::bmspcov(X, Sigma=cov(X))
 # cutoff <- list(method="FNR", rho=0.25, FNR=0.05)
 # foo <- bspcov::sbmspcov(X=X, Sigma=cov(X), cutoff=cutoff)
 
-est.sig <- apply(foo$Sigma, c(1,2), mean)
+est.sig <- bspcov::estimate(foo)
 Matrix::norm(TrSig - est.sig, type = 'F')/p
-
-# variable selection performance
-bspcov::postmcmc_vs(foo)
