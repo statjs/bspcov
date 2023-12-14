@@ -11,6 +11,11 @@ To build the package from source, you need to have the following:
 ```bash
 # R CMD check .
 VERSION=$(git describe --tags | sed 's/v//g')
+
+## build manual
+R CMD Rd2pdf --force --no-preview -o bspcov-manual.pdf .
+
+## build package
 sed -i '' "s/Version: [^\"]*/Version: ${VERSION}/g" "DESCRIPTION"
 R CMD build .
 ```
