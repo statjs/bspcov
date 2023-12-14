@@ -19,7 +19,8 @@ Description: Provides functions which perform Bayesian estimations of
     	  and NRF-2020R1C1C1A01013338).
 Imports: GIGrvg, coda, progress, BayesFactor, MASS, mvnfast,
         matrixcalc, matrixStats, purrr, dplyr, RSpectra, Matrix, plyr,
-        CholWishart, magrittr, future, furrr, ks, ggplot2, coda, ggmcmc
+        CholWishart, magrittr, future, furrr, ks, ggplot2, coda, ggmcmc,
+        caret, FinCovRegularization
 License: GPL-2
 LazyLoad: yes
 URL: https://github.com/statjs/bspcov
