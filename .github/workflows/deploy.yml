@@ -1,9 +1,11 @@
-name: Deploy R packages (dev)
+name: Deploy R packages
 
 on:
   push:
     branches:
-      - 'dev-**'
+      - main
+    tags:
+      - "v*"
     paths-ignore:
       - 'README.md'
       - 'LICENSE.txt'
@@ -26,17 +28,13 @@ jobs:
       
       - uses: r-lib/actions/setup-tinytex@v2
 
-      # - uses: r-lib/actions/setup-r-dependencies@v2
-      #   with:
-      #     needs: check
       - name: check package
         run: |
           R CMD check .
       
       - name: get version
-        # since this is dev-branch, use the version as the date + 000
         run: |
-          export VERSION=$(date +'%Y.%m.%d').000
+          export VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//g')
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo $VERSION
 
@@ -53,9 +51,7 @@ jobs:
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "dev-latest"
-          prerelease: true
-          title: "Development Build"
+          prerelease: false
           files: |
             bspcov-manual.pdf
             bspcov_*.tar.gz
