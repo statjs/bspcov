@@ -1,15 +1,11 @@
-name: Deploy R packages (dev)
+name: Deploy R packages (dev, pull-requests)
 
 on:
-  push:
-    branches:
-      - 'dev-**'
+  pull_request:
+    branches: [ main ]
     paths-ignore:
       - 'README.md'
       - 'LICENSE.txt'
-
-permissions: 
-  contents: write
 
 jobs:
   build:
@@ -49,14 +45,3 @@ jobs:
         run: |
           R CMD Rd2pdf --force --no-preview -o bspcov-manual.pdf .
           R CMD build .
-      
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "dev-latest"
-          prerelease: true
-          title: "Development Build"
-          files: |
-            bspcov-manual.pdf
-            bspcov_*.tar.gz
-            bspcov_*.zip

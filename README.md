@@ -9,6 +9,10 @@ An R package for Bayesian Sparse Estimation of a Covariance Matrix
 To build the package from source, you need to have the following:
 
 ```bash
+# lock the renv
+pkgs <- c("...")
+renv::snapshot(packages = pkgs)
+
 # R CMD check .
 VERSION=$(git describe --tags | sed 's/v//g')
 
