@@ -1,0 +1,62 @@
+name: Deploy R packages (dev)
+
+on:
+  push:
+    branches:
+      - 'dev-**'
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE.txt'
+
+permissions: 
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.2.3'
+          use-public-rspm: true
+      
+      - uses: r-lib/actions/setup-renv@v2
+      
+      - uses: r-lib/actions/setup-tinytex@v2
+
+      # - uses: r-lib/actions/setup-r-dependencies@v2
+      #   with:
+      #     needs: check
+      - name: check package
+        run: |
+          R CMD check .
+      
+      - name: get version
+        # since this is dev-branch, use the version as the date + 000
+        run: |
+          export VERSION=$(date +'%Y.%m.%d').000
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo $VERSION
+
+      - name: update DESCRIPTION (version and date)
+        run: |
+          sed -i "s/Version: [^\"]*/Version: ${VERSION}/g" "DESCRIPTION"
+          sed -i "s/Date: [^\"]*/Date: `date +'%Y-%m-%d'`/g" "DESCRIPTION"
+      
+      - name: build package and manual
+        run: |
+          R CMD Rd2pdf --force --no-preview -o bspcov-manual.pdf .
+          R CMD build .
+      
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "dev-latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            bspcov-manual.pdf
+            bspcov_*.tar.gz
+            bspcov_*.zip
