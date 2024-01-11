@@ -1,4 +1,3 @@
-Spritely is a jQuery plugin for the animation of CSS sprites.
 Copyright (C) 2023  Kwangmin Lee, Kyeongwon Lee, Kyoungjae Lee, and Seongil Jo
 
 This program is free software; you can redistribute it and/or modify
