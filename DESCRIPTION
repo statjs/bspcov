@@ -8,7 +8,7 @@ Author: Kwangmin Lee [aut],
   Kyoungjae Lee [aut],
   Seongil Jo [aut, cre],
   Jaeyong Lee [ctb]
-Maintainer: Seongil Jo <bstatsjo@gamil.com>
+Maintainer: Kyeongwon Lee <kwlee1718@gmail.com>
 Description: Provides functions which perform Bayesian estimations of 
         a covariance matrix for multivariate normal data. Assumes that
         the covariance matrix is sparse or band matrix and positive-definite. 
