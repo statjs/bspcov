@@ -23,8 +23,8 @@ X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = TrSig)
 foo_bm <- bspcov::bmspcov(X, Sigma = cov(X))
 
 # Bayesian sparse and positive definite estimate of a covariance matrix via screened beta-mixture prior
-cutoff <- list(method="FNR", rho=0.25, FNR=0.05)
-foo_sbm <- bspcov::sbmspcov(X=X, Sigma=cov(X), cutoff=cutoff)
+cutoff <- list(method = "FNR", rho = 0.25, FNR = 0.05)
+foo_sbm <- bspcov::sbmspcov(X = X, Sigma = cov(X), cutoff = cutoff)
 
 # results
 est.sig_bm <- bspcov::estimate(foo_bm)
