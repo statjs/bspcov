@@ -9,8 +9,9 @@
 #' @examples
 #'
 #' \dontrun{
-#' colon <- raad.table("colon.txt")
-#' devtools::use_data(colon, overwrite = TRUE)
+#' # colon <- raad.table("colon.txt")
+#' # devtools::use_data(colon, overwrite = TRUE)
 #' data("colon")
+#' head(colon)
 #' }
 NULL

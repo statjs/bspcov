@@ -1,0 +1,1 @@
+utils::globalVariables(c(".", "eps", "err", "logpdf", "thres"))

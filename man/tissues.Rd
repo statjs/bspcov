@@ -17,9 +17,10 @@ which includes gene expression values from 22 colon tumor tissues and 40 non-tum
 \examples{
 
 \dontrun{
-tissues <- scan("tissues.txt")
-devtools::use_data(tissues, overwrite = TRUE)
+# tissues <- scan("tissues.txt")
+# devtools::use_data(tissues, overwrite = TRUE)
 data("tissues")
+head(tissues)
 }
 }
 \keyword{data}

@@ -26,11 +26,11 @@ plot.postmean.bspcov <- function(x, ...) {
   p <- ncol(x)
   x_grid <- 1:p
   y_grid <- 1:p
-  dat <- expand.grid(x=x_grid, y=y_grid)
-  dat$z <- as.vector(x)
-  ggplot2::ggplot(dat, ggplot2::aes(x_grid, y_grid, fill= z), ...) +
+  dat <- expand.grid(x_grid = x_grid, y_grid = y_grid)
+  z <- as.vector(x)
+  dat$z <- z
+  ggplot2::ggplot(dat, ggplot2::aes(x = x_grid, y = y_grid, fill = z), ...) +
     ggplot2::geom_tile() + ggplot2::theme_classic() +
     ggplot2::theme(axis.title = ggplot2::element_blank()) +
     ggplot2::guides(fill = ggplot2::guide_legend(title="cov"))
-  NextMethod("plot")
 }

@@ -16,9 +16,10 @@ The colon cancer dataset, which includes gene expression values from 22 colon tu
 \examples{
 
 \dontrun{
-colon <- raad.table("colon.txt")
-devtools::use_data(colon, overwrite = TRUE)
+# colon <- raad.table("colon.txt")
+# devtools::use_data(colon, overwrite = TRUE)
 data("colon")
+head(colon)
 }
 }
 \keyword{data}

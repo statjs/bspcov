@@ -16,9 +16,10 @@ The idiosyncratic error of S&P 500 data
 \examples{
 
 \dontrun{
-SP500_idioerr <- readRDS("SP500_idioerr.rds")
-devtools::use_data(SP500_idioerr, overwrite = TRUE)
+# SP500_idioerr <- readRDS("SP500_idioerr.rds")
+# devtools::use_data(SP500_idioerr, overwrite = TRUE)
 data("SP500_idioerr")
+names(SP500_idioerr)
 }
 }
 \keyword{data}

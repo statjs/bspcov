@@ -8,7 +8,7 @@ cv.thresPPP(
   X,
   thresvec,
   epsvec,
-  hyperparam = NULL,
+  prior = NULL,
   thresfun = "hard",
   nsample = 2000,
   ncores = 2
@@ -21,7 +21,7 @@ cv.thresPPP(
 
 \item{epsvec}{a vector of small positive numbers decreasing to \eqn{0}.}
 
-\item{hyperparam}{a list of hyperparameters for prior distribution.
+\item{prior}{a list giving the prior information.
 The list includes the following parameters (with default values in parentheses):
 \code{A (I)} giving the positive definite scale matrix for the inverse-Wishart prior,
 \code{nu (p + k)} giving the degree of freedom of the inverse-Wishar prior.}

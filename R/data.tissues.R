@@ -10,8 +10,9 @@
 #' @examples
 #'
 #' \dontrun{
-#' tissues <- scan("tissues.txt")
-#' devtools::use_data(tissues, overwrite = TRUE)
+#' # tissues <- scan("tissues.txt")
+#' # devtools::use_data(tissues, overwrite = TRUE)
 #' data("tissues")
+#' head(tissues)
 #' }
 NULL

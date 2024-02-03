@@ -13,7 +13,7 @@
 #' @param X a n \eqn{\times} p data matrix with column mean zero.
 #' @param thresvec a vector of real numbers specifying the parameter of the threshold function.
 #' @param epsvec a vector of small positive numbers decreasing to \eqn{0}.
-#' @param hyperparam a list of hyperparameters for prior distribution.
+#' @param prior a list giving the prior information.
 #' The list includes the following parameters (with default values in parentheses):
 #' \code{A (I)} giving the positive definite scale matrix for the inverse-Wishart prior,
 #' \code{nu (p + k)} giving the degree of freedom of the inverse-Wishar prior.
@@ -48,26 +48,26 @@
 #' res <- bspcov::cv.thresPPP(X,thresvec,epsvec,nsample=100)
 #' plot(res)}
 #'
-cv.thresPPP <- function(X, thresvec, epsvec, hyperparam = NULL,
+cv.thresPPP <- function(X, thresvec, epsvec, prior = NULL,
                         thresfun = 'hard',
                         nsample = 2000, ncores = 2){
 
-  thresPPPCV <- function(Xtrain, Xnew, tuneparams, hyperparam=NULL,
+  thresPPPCV <- function(Xtrain, Xnew, tuneparams, prior=NULL,
                          thresfun = 'hard', num.mcmc=100){
     n <- nrow(Xtrain)
     p <- ncol(Xtrain)
-    if(is.null(hyperparam)){
-      hyperparam <- list(A=diag(mean(diag(cov(Xtrain))),p),nu=p+1)
+    if(is.null(prior)){
+      prior <- list(A=diag(mean(diag(cov(Xtrain))),p),nu=p+1)
     }
-    parameter_initposterior <- list(A=crossprod(Xtrain)+ hyperparam$A,
-                                    nu=hyperparam$nu + n)
+    parameter_initposterior <- list(A=crossprod(Xtrain)+ prior$A,
+                                    nu=prior$nu + n)
 
     Snew <- crossprod(Xnew)/nrow(Xnew)
 
 
     PPPmean_list <- 1:nrow(tuneparams) %>%
       purrr::map(~(thresPPP(Xtrain,thres= list(value = tuneparams$thres[.x], fun = thresfun),
-                            eps=tuneparams$eps[.x],prior=hyperparam,nsample)$Sigma %>%
+                            eps=tuneparams$eps[.x],prior=prior,nsample)$Sigma %>%
                      plyr::alply(1,ks::invvech) %>%
                      purrr::reduce(`+`))/nsample)
 
@@ -82,7 +82,7 @@ cv.thresPPP <- function(X, thresvec, epsvec, hyperparam = NULL,
   list.trainind <- caret::createMultiFolds(1:nrow(X),times = 1)
 
   CVdf <- list.trainind %>%
-    furrr::future_map(~thresPPPCV(X[.x,],X[-.x,],tuneparams,hyperparam,
+    furrr::future_map(~thresPPPCV(X[.x,],X[-.x,],tuneparams,prior,
                                   thresfun=thresfun),
                       .options = furrr::furrr_options(seed=TRUE)) %>%
     do.call("rbind",.) %>% dplyr::group_by(thres,eps) %>%
