@@ -4,6 +4,8 @@
 
 An R package for Bayesian Sparse Estimation of a Covariance Matrix
 
+![S&P 500 Example](./figs/thresPPPheatmap.png?raw=true "SP 500 Example")
+
 ## Building
 
 To build the package from source, you need to have the following:
