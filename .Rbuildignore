@@ -4,3 +4,6 @@
 ^\.Rproj\.user$
 ^\examples$
 ^LICENSE\.txt$
+^\.github$
+^\.git$
+^\.DS_Store$

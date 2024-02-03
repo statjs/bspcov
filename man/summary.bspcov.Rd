@@ -12,6 +12,8 @@
 \item{cols}{a scalar or a vector including specific column indices.}
 
 \item{rows}{a scalar or a vector including specific row indices greater than or equal to columns indices.}
+
+\item{...}{additional arguments for the summary function.}
 }
 \description{
 Provides the summary statistics for posterior samples of covariance matrix.

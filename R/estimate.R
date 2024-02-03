@@ -3,6 +3,7 @@
 #' Compute the point estimate (mean) to describe posterior distribution.
 #'
 #' @param object an object from \strong{bandPPP}, \strong{bmspcov}, \strong{sbmspcov}, and \strong{thresPPP}.
+#' @param ... additional arguments for estimate.
 #'
 #' @author Seongil Jo
 #' @seealso plot.postmean.bspcov

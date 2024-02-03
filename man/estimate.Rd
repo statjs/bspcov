@@ -11,6 +11,8 @@ estimate(object, ...)
 }
 \arguments{
 \item{object}{an object from \strong{bandPPP}, \strong{bmspcov}, \strong{sbmspcov}, and \strong{thresPPP}.}
+
+\item{...}{additional arguments for estimate.}
 }
 \description{
 Compute the point estimate (mean) to describe posterior distribution.

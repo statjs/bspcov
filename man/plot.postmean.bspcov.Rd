@@ -4,10 +4,12 @@
 \alias{plot.postmean.bspcov}
 \title{Draw a Heat Map for Point Estimate of Covariance Matrix}
 \usage{
-\method{plot}{postmean.bspcov}(object, ...)
+\method{plot}{postmean.bspcov}(x, ...)
 }
 \arguments{
-\item{object}{an object from \strong{estimate}.}
+\item{x}{an object from \strong{estimate}.}
+
+\item{...}{additional arguments for ggplot2.}
 }
 \description{
 Provides a heat map for posterior mean estimate of sparse covariance matrix

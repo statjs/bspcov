@@ -4,10 +4,12 @@
 \alias{plot.bspcov}
 \title{Plot Diagnostics of Posterior Samples and Cross-Validation}
 \usage{
-\method{plot}{bspcov}(object, cols, rows, ...)
+\method{plot}{bspcov}(x, ..., cols, rows)
 }
 \arguments{
-\item{object}{an object from \strong{bmspcov}, \strong{sbmspcov}, \strong{cv.bandPPP}, and \strong{cv.thresPPP}.}
+\item{x}{an object from \strong{bmspcov}, \strong{sbmspcov}, \strong{cv.bandPPP}, and \strong{cv.thresPPP}.}
+
+\item{...}{additional arguments for ggplot2.}
 
 \item{cols}{a scalar or a vector including specific column indices for the trace plot.}
 

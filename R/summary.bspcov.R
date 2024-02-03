@@ -5,6 +5,7 @@
 #' @param object an object from \strong{bandPPP}, \strong{bmspcov}, \strong{sbmspcov}, and \strong{thresPPP}.
 #' @param cols a scalar or a vector including specific column indices.
 #' @param rows a scalar or a vector including specific row indices greater than or equal to columns indices.
+#' @param ... additional arguments for the summary function.
 #'
 #' @note If both \code{cols} and \code{rows} are vectors, they must have the same length.
 #'

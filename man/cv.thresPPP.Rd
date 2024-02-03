@@ -15,22 +15,22 @@ cv.thresPPP(
 )
 }
 \arguments{
-\item{X}{a n \eqn{\times} p data matrix with column mean zero}
+\item{X}{a n \eqn{\times} p data matrix with column mean zero.}
 
 \item{thresvec}{a vector of real numbers specifying the parameter of the threshold function.}
 
 \item{epsvec}{a vector of small positive numbers decreasing to \eqn{0}.}
+
+\item{hyperparam}{a list of hyperparameters for prior distribution.
+The list includes the following parameters (with default values in parentheses):
+\code{A (I)} giving the positive definite scale matrix for the inverse-Wishart prior,
+\code{nu (p + k)} giving the degree of freedom of the inverse-Wishar prior.}
 
 \item{thresfun}{a string to specify the type of threshold function. \code{fun ('hard')} giving the thresholding function ('hard' or 'soft') for the thresholding PPP procedure.}
 
 \item{nsample}{a scalar value giving the number of the post-processed posterior samples.}
 
 \item{ncores}{a scalar value giving the number of CPU cores.}
-
-\item{prior}{a list giving the prior information.
-The list includes the following parameters (with default values in parentheses):
-\code{A (I)} giving the positive definite scale matrix for the inverse-Wishart prior,
-\code{nu (p + 1)} giving the degree of freedom of the inverse-Wishar prior.}
 }
 \value{
 \item{CVdf}{a M \eqn{\times} 3 dataframe having the estimated spectral norm error for each thres and eps, where M = length(thresvec) * length(epsvec)}

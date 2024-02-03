@@ -2,13 +2,15 @@ Package: bspcov
 Type: Package
 Title: Bayesian Sparse Estimation of a Covariance Matrix
 Version: 1.0.0
-Date: 2023-12-19
+Date: 2024-01-27
 Author: Kwangmin Lee [aut],
   Kyeongwon Lee [aut],
   Kyoungjae Lee [aut],
   Seongil Jo [aut, cre],
   Jaeyong Lee [ctb]
 Maintainer: Kyeongwon Lee <kwlee1718@gmail.com>
+Depends:
+    R (>= 3.5)
 Description: Provides functions which perform Bayesian estimations of 
         a covariance matrix for multivariate normal data. Assumes that
         the covariance matrix is sparse or band matrix and positive-definite. 
@@ -19,12 +21,13 @@ Description: Provides functions which perform Bayesian estimations of
     	  and NRF-2020R1C1C1A01013338).
 Imports: GIGrvg, coda, progress, BayesFactor, MASS, mvnfast,
         matrixcalc, matrixStats, purrr, dplyr, RSpectra, Matrix, plyr,
-        CholWishart, magrittr, future, furrr, ks, ggplot2, coda, ggmcmc,
+        CholWishart, magrittr, future, furrr, ks, ggplot2, ggmcmc,
         caret, FinCovRegularization
 License: GPL-2
 LazyLoad: yes
 URL: https://github.com/statjs/bspcov
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 NeedsCompilation: no
-Packaged: 2023-07-17 00:05:08 UTC; statjs
+Packaged: 2024-01-27 16:01:04 UTC; Kyeongwon Lee
+LazyData: true

@@ -42,7 +42,7 @@ The list includes the following integers (with default values in parentheses):
 Provides a Bayesian sparse and positive definite estimate of a covariance matrix via screened beta-mixture prior.
 }
 \details{
-Lee, Jo, Lee, and Lee (2022+) proposed the screened beta-mixture shrinkage prior for estimating a sparse and positive definite covariance matrix.
+Lee, Jo, Lee, and Lee (2023+) proposed the screened beta-mixture shrinkage prior for estimating a sparse and positive definite covariance matrix.
 The screened beta-mixture shrinkage prior for \eqn{\Sigma = (\sigma_{jk})} is defined as
 \deqn{
  \pi(\Sigma) = \frac{\pi^{u}(\Sigma)I(\Sigma \in C_p)}{\pi^{u}(\Sigma \in C_p)}, ~ C_p = \{\mbox{ all } p \times p \mbox{ positive definite matrices }\},
@@ -91,7 +91,7 @@ sqrt(mean((cov(X) - True.Sigma)^2))}
 
 }
 \references{
-Lee, K., Jo, S., Lee, K., and Lee, J. (2022+), "Scalable and optimal Bayesian inference for sparse covariance matrices via screened beta-mixture prior",
+Lee, K., Jo, S., Lee, K., and Lee, J. (2023+), "Scalable and optimal Bayesian inference for sparse covariance matrices via screened beta-mixture prior",
 	arXiv:2206.12773.
 }
 \seealso{

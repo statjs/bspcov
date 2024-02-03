@@ -10,14 +10,14 @@
 #' The spectral norm error is estimated by the \eqn{10}-fold cross-validation.
 #' For more details, see the first paragraph on page 9 in Lee and Lee (2023).
 #'
-#' @param X a n \eqn{\times} p data matrix with column mean zero
+#' @param X a n \eqn{\times} p data matrix with column mean zero.
 #' @param thresvec a vector of real numbers specifying the parameter of the threshold function.
 #' @param epsvec a vector of small positive numbers decreasing to \eqn{0}.
-#' @param thresfun a string to specify the type of threshold function. \code{fun ('hard')} giving the thresholding function ('hard' or 'soft') for the thresholding PPP procedure.
-#' @param prior a list giving the prior information.
+#' @param hyperparam a list of hyperparameters for prior distribution.
 #' The list includes the following parameters (with default values in parentheses):
 #' \code{A (I)} giving the positive definite scale matrix for the inverse-Wishart prior,
-#' \code{nu (p + 1)} giving the degree of freedom of the inverse-Wishar prior.
+#' \code{nu (p + k)} giving the degree of freedom of the inverse-Wishar prior.
+#' @param thresfun a string to specify the type of threshold function. \code{fun ('hard')} giving the thresholding function ('hard' or 'soft') for the thresholding PPP procedure.
 #' @param nsample a scalar value giving the number of the post-processed posterior samples.
 #' @param ncores a scalar value giving the number of CPU cores.
 #' @return \item{CVdf}{a M \eqn{\times} 3 dataframe having the estimated spectral norm error for each thres and eps, where M = length(thresvec) * length(epsvec)}
