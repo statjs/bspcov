@@ -38,7 +38,7 @@ For more details, see (3) in Lee, Lee and Lee (2023+).
 }
 \examples{
 
-\dontrun{
+\donttest{
 Sigma0 <- diag(1,50)
 X <- mvtnorm::rmvnorm(25,sigma = Sigma0)
 kvec <- 1:2

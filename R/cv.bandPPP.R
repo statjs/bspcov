@@ -37,7 +37,7 @@
 #'
 #' @examples
 #'
-#' \dontrun{
+#' \donttest{
 #' Sigma0 <- diag(1,50)
 #' X <- mvtnorm::rmvnorm(25,sigma = Sigma0)
 #' kvec <- 1:2

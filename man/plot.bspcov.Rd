@@ -15,12 +15,15 @@
 
 \item{rows}{a scalar or a vector including specific row indices greater than or equal to columns indices for the trace plot.}
 }
+\value{
+\item{plot}{a plot for diagnostics of posterior samples \strong{x}.}
+}
 \description{
 Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation
 }
 \examples{
 
-\dontrun{
+\donttest{
 set.seed(1)
 n <- 100
 p <- 20
@@ -45,7 +48,7 @@ X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = True.Sigma)
 # compute sparse, positive covariance estimator:
 fout <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))))
 plot(fout, cols = c(1, 3, 4), rows = c(1, 3, 4))
-#plot(fout, cols = 1, rows = 1:3)
+plot(fout, cols = 1, rows = 1:3)
 
 # Cross-Validation for Banded Structure
 Sigma0 <- diag(1,50)

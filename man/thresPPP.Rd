@@ -58,13 +58,12 @@ For more details, see Lee and Lee (2023).
 }
 \examples{
 
-\dontrun{
 n <- 25
 p <- 50
 Sigma0 <- diag(1, p)
 X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
 res <- bspcov::thresPPP(X, eps=0.01, thres=list(value=0.5,fun='hard'), nsample=100)
-est <- bspcov::estimate(res)}
+est <- bspcov::estimate(res)
 
 }
 \references{

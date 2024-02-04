@@ -49,7 +49,7 @@ For more details, see the first paragraph on page 9 in Lee and Lee (2023).
 }
 \examples{
 
-\dontrun{
+\donttest{
 Sigma0 <- diag(1,50)
 X <- mvtnorm::rmvnorm(25,sigma = Sigma0)
 thresvec <- c(0.01,0.1)

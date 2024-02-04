@@ -5,6 +5,7 @@
 #' @param object an object from \strong{bandPPP}, \strong{bmspcov}, \strong{sbmspcov}, and \strong{thresPPP}.
 #' @param ... additional arguments for estimate.
 #'
+#' @return \item{Sigma}{the point estimate (mean) of covariance matrix.}
 #' @author Seongil Jo
 #' @seealso plot.postmean.bspcov
 #'
@@ -13,13 +14,12 @@
 #'
 #' @examples
 #'
-#' \dontrun{
 #' n <- 25
 #' p <- 50
 #' Sigma0 <- diag(1, p)
 #' X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
 #' res <- bspcov::bandPPP(X,2,0.01,nsample=100)
-#' est <- bspcov::estimate(res)}
+#' est <- bspcov::estimate(res)
 #'
 estimate <- function(object, ...) {
   UseMethod("estimate")

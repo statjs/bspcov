@@ -6,17 +6,18 @@
 #' @param ... additional arguments for ggplot2.
 #' @param cols a scalar or a vector including specific column indices for the trace plot.
 #' @param rows a scalar or a vector including specific row indices greater than or equal to columns indices for the trace plot.
-#'
+#' @return \item{plot}{a plot for diagnostics of posterior samples \strong{x}.}
 #' @author Seongil Jo
 #'
 #' @importFrom coda mcmc
 #' @importFrom ggmcmc ggs ggs_traceplot
 #' @importFrom magrittr `%>%`
+#' @importFrom mvtnorm rmvnorm
 #' @export
 #'
 #' @examples
 #'
-#' \dontrun{
+#' \donttest{
 #' set.seed(1)
 #' n <- 100
 #' p <- 20
@@ -41,7 +42,7 @@
 #' # compute sparse, positive covariance estimator:
 #' fout <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))))
 #' plot(fout, cols = c(1, 3, 4), rows = c(1, 3, 4))
-#' #plot(fout, cols = 1, rows = 1:3)
+#' plot(fout, cols = 1, rows = 1:3)
 #'
 #' # Cross-Validation for Banded Structure
 #' Sigma0 <- diag(1,50)

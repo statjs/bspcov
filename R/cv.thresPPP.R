@@ -35,12 +35,13 @@
 #' @importFrom caret createMultiFolds
 #' @importFrom dplyr group_by summarise
 #' @importFrom plyr alply
+#' @importFrom mvtnorm rmvnorm
 #' @import magrittr
 #' @export
 #'
 #' @examples
 #'
-#' \dontrun{
+#' \donttest{
 #' Sigma0 <- diag(1,50)
 #' X <- mvtnorm::rmvnorm(25,sigma = Sigma0)
 #' thresvec <- c(0.01,0.1)

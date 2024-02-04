@@ -4,7 +4,7 @@
 #'
 #' @param x an object from \strong{estimate}.
 #' @param ... additional arguments for ggplot2.
-#'
+#' @return \item{plot}{a heatmap for point estimate of covariance matrix \strong{x}.}
 #' @author Seongil Jo
 #' @seealso estimate
 #'
@@ -13,14 +13,13 @@
 #'
 #' @examples
 #'
-#' \dontrun{
 #' n <- 25
 #' p <- 50
 #' Sigma0 <- diag(1, p)
 #' X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
 #' res <- bspcov::thresPPP(X, eps=0.01, thres=list(value=0.5,fun='hard'), nsample=100)
 #' est <- bspcov::estimate(res)
-#' plot(est)}
+#' plot(est)
 #'
 plot.postmean.bspcov <- function(x, ...) {
   p <- ncol(x)

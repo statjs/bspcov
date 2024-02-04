@@ -15,6 +15,9 @@
 
 \item{...}{additional arguments for the summary function.}
 }
+\value{
+\item{summary}{a table of summary statistics including empirical mean, standard deviation, and quantiles for posterior samples}
+}
 \description{
 Provides the summary statistics for posterior samples of covariance matrix.
 }
@@ -23,10 +26,9 @@ If both \code{cols} and \code{rows} are vectors, they must have the same length.
 }
 \examples{
 
-\dontrun{
 set.seed(1)
-n <- 100
-p <- 20
+n <- 20
+p <- 5
 
 # generate a sparse covariance matrix:
 True.Sigma <- matrix(0, nrow = p, ncol = p)
@@ -48,7 +50,7 @@ X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = True.Sigma)
 # compute sparse, positive covariance estimator:
 fout <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))))
 summary(fout, cols = c(1, 3, 4), rows = c(1, 3, 4))
-#summary(fout, cols = 1, rows = 1:p)}
+summary(fout, cols = 1, rows = 1:p)
 
 }
 \author{
