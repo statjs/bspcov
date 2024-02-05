@@ -13,6 +13,7 @@
 #' @importFrom ggmcmc ggs ggs_traceplot
 #' @importFrom magrittr `%>%`
 #' @importFrom mvtnorm rmvnorm
+#' @importFrom future plan multisession sequential
 #' @export
 #'
 #' @examples
@@ -51,6 +52,10 @@
 #' epsvec <- c(0.01,0.05)
 #' res <- bspcov::cv.bandPPP(X,kvec,epsvec,nsample=10,ncores=4)
 #' plot(res)}
+#' \dontshow{
+#' # R CMD check: make sure any open connections are closed afterward
+#' if (!inherits(future::plan(), "sequential")) future::plan(future::sequential)
+#' }
 #'
 plot.bspcov <- function(x, ..., cols, rows) {
   if (is.null(x$ppp)) {

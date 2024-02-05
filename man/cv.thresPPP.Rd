@@ -56,6 +56,10 @@ thresvec <- c(0.01,0.1)
 epsvec <- c(0.01,0.1)
 res <- bspcov::cv.thresPPP(X,thresvec,epsvec,nsample=100)
 plot(res)}
+\dontshow{
+# R CMD check: make sure any open connections are closed afterward
+if (!inherits(future::plan(), "sequential")) future::plan(future::sequential)
+}
 
 }
 \references{
