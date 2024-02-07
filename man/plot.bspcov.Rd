@@ -4,21 +4,26 @@
 \alias{plot.bspcov}
 \title{Plot Diagnostics of Posterior Samples and Cross-Validation}
 \usage{
-\method{plot}{bspcov}(object, cols, rows, ...)
+\method{plot}{bspcov}(x, ..., cols, rows)
 }
 \arguments{
-\item{object}{an object from \strong{bmspcov}, \strong{sbmspcov}, \strong{cv.bandPPP}, and \strong{cv.thresPPP}.}
+\item{x}{an object from \strong{bmspcov}, \strong{sbmspcov}, \strong{cv.bandPPP}, and \strong{cv.thresPPP}.}
+
+\item{...}{additional arguments for ggplot2.}
 
 \item{cols}{a scalar or a vector including specific column indices for the trace plot.}
 
 \item{rows}{a scalar or a vector including specific row indices greater than or equal to columns indices for the trace plot.}
+}
+\value{
+\item{plot}{a plot for diagnostics of posterior samples \strong{x}.}
 }
 \description{
 Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation
 }
 \examples{
 
-\dontrun{
+\donttest{
 set.seed(1)
 n <- 100
 p <- 20
@@ -43,7 +48,7 @@ X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = True.Sigma)
 # compute sparse, positive covariance estimator:
 fout <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))))
 plot(fout, cols = c(1, 3, 4), rows = c(1, 3, 4))
-#plot(fout, cols = 1, rows = 1:3)
+plot(fout, cols = 1, rows = 1:3)
 
 # Cross-Validation for Banded Structure
 Sigma0 <- diag(1,50)
@@ -52,6 +57,10 @@ kvec <- 1:2
 epsvec <- c(0.01,0.05)
 res <- bspcov::cv.bandPPP(X,kvec,epsvec,nsample=10,ncores=4)
 plot(res)}
+\dontshow{
+# R CMD check: make sure any open connections are closed afterward
+if (!inherits(future::plan(), "sequential")) future::plan(future::sequential)
+}
 
 }
 \author{

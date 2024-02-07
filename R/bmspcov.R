@@ -47,10 +47,9 @@
 #' @export
 #' @examples
 #'
-#' \dontrun{
 #' set.seed(1)
-#' n <- 100
-#' p <- 20
+#' n <- 20
+#' p <- 5
 #'
 #' # generate a sparse covariance matrix:
 #' True.Sigma <- matrix(0, nrow = p, ncol = p)
@@ -73,7 +72,7 @@
 #' fout <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))))
 #' post.est.m <- bspcov::estimate(fout)
 #' sqrt(mean((post.est.m - True.Sigma)^2))
-#' sqrt(mean((cov(X) - True.Sigma)^2))}
+#' sqrt(mean((cov(X) - True.Sigma)^2))
 #'
 bmspcov <- function(X, Sigma, prior = list(), nsample = list()) {
   # Estimate a sparse covariance matrix using beta-mixture shrinkage prior

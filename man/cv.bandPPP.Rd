@@ -38,13 +38,17 @@ For more details, see (3) in Lee, Lee and Lee (2023+).
 }
 \examples{
 
-\dontrun{
+\donttest{
 Sigma0 <- diag(1,50)
 X <- mvtnorm::rmvnorm(25,sigma = Sigma0)
 kvec <- 1:2
 epsvec <- c(0.01,0.05)
 res <- bspcov::cv.bandPPP(X,kvec,epsvec,nsample=10,ncores=4)
 plot(res)}
+\dontshow{
+# R CMD check: make sure any open connections are closed afterward
+if (!inherits(future::plan(), "sequential")) future::plan(future::sequential)
+}
 
 }
 \references{

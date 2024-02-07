@@ -1,4 +1,4 @@
-Copyright (C) 2023  Kwangmin Lee, Kyeongwon Lee, Kyoungjae Lee, and Seongil Jo
+Copyright (C) 2024  Kwangmin Lee, Kyeongwon Lee, Kyoungjae Lee, and Seongil Jo
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

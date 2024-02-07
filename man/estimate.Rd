@@ -11,19 +11,23 @@ estimate(object, ...)
 }
 \arguments{
 \item{object}{an object from \strong{bandPPP}, \strong{bmspcov}, \strong{sbmspcov}, and \strong{thresPPP}.}
+
+\item{...}{additional arguments for estimate.}
+}
+\value{
+\item{Sigma}{the point estimate (mean) of covariance matrix.}
 }
 \description{
 Compute the point estimate (mean) to describe posterior distribution.
 }
 \examples{
 
-\dontrun{
 n <- 25
 p <- 50
 Sigma0 <- diag(1, p)
 X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
 res <- bspcov::bandPPP(X,2,0.01,nsample=100)
-est <- bspcov::estimate(res)}
+est <- bspcov::estimate(res)
 
 }
 \seealso{

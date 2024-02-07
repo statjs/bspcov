@@ -1,5 +1,5 @@
 #' @importFrom MASS mvrnorm
-#' @importFrom stats cor quantile
+#' @importFrom stats cor quantile cov
 #' @importFrom BayesFactor correlationBF
 #' @importFrom purrr map
 #' @importFrom matrixStats logSumExp

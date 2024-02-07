@@ -2,20 +2,23 @@
 #'
 #' Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation
 #'
-#' @param object an object from \strong{bmspcov}, \strong{sbmspcov}, \strong{cv.bandPPP}, and \strong{cv.thresPPP}.
+#' @param x an object from \strong{bmspcov}, \strong{sbmspcov}, \strong{cv.bandPPP}, and \strong{cv.thresPPP}.
+#' @param ... additional arguments for ggplot2.
 #' @param cols a scalar or a vector including specific column indices for the trace plot.
 #' @param rows a scalar or a vector including specific row indices greater than or equal to columns indices for the trace plot.
-#'
+#' @return \item{plot}{a plot for diagnostics of posterior samples \strong{x}.}
 #' @author Seongil Jo
 #'
 #' @importFrom coda mcmc
 #' @importFrom ggmcmc ggs ggs_traceplot
 #' @importFrom magrittr `%>%`
+#' @importFrom mvtnorm rmvnorm
+#' @importFrom future plan multisession sequential
 #' @export
 #'
 #' @examples
 #'
-#' \dontrun{
+#' \donttest{
 #' set.seed(1)
 #' n <- 100
 #' p <- 20
@@ -40,7 +43,7 @@
 #' # compute sparse, positive covariance estimator:
 #' fout <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))))
 #' plot(fout, cols = c(1, 3, 4), rows = c(1, 3, 4))
-#' #plot(fout, cols = 1, rows = 1:3)
+#' plot(fout, cols = 1, rows = 1:3)
 #'
 #' # Cross-Validation for Banded Structure
 #' Sigma0 <- diag(1,50)
@@ -49,10 +52,14 @@
 #' epsvec <- c(0.01,0.05)
 #' res <- bspcov::cv.bandPPP(X,kvec,epsvec,nsample=10,ncores=4)
 #' plot(res)}
+#' \dontshow{
+#' # R CMD check: make sure any open connections are closed afterward
+#' if (!inherits(future::plan(), "sequential")) future::plan(future::sequential)
+#' }
 #'
-plot.bspcov <- function(object, cols, rows, ...) {
-  if (is.null(object$ppp)) {
-    p <- object$p
+plot.bspcov <- function(x, ..., cols, rows) {
+  if (is.null(x$ppp)) {
+    p <- x$p
     if (missing(cols)) {
       cols <- 1
     }
@@ -66,15 +73,15 @@ plot.bspcov <- function(object, cols, rows, ...) {
     }
 
     # posterior samples
-    post.sample <- t(apply(object$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
+    post.sample <- t(apply(x$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
     colnames(post.sample) <- paste('sigma[',rows,',',cols,']',sep='')
     post.sample %>% mcmc %>% ggs %>% ggs_traceplot
   } else {
-    if (object$ppp == 'cv.band') {
-      ggplot2::qplot(y = object$elpd$logpdf, ylab = 'Expected Log Predictive Density (ELPD)', ...) +
+    if (x$ppp == 'cv.band') {
+      ggplot2::qplot(y = x$elpd$logpdf, ylab = 'Expected Log Predictive Density (ELPD)', ...) +
         ggplot2::geom_line(size = 1) + ggplot2::theme_bw()
     } else {
-      ggplot2::qplot(y = object$error$err, ylab = 'Spectral Norm Error', ...) +
+      ggplot2::qplot(y = x$error$err, ylab = 'Spectral Norm Error', ...) +
         ggplot2::geom_line(size = 1) + ggplot2::theme_bw()
     }
   }

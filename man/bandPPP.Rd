@@ -53,12 +53,11 @@ For more details, see Lee, Lee and Lee (2023+).
 }
 \examples{
 
-\dontrun{
 n <- 25
 p <- 50
 Sigma0 <- diag(1, p)
 X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
-res <- bspcov::bandPPP(X,2,0.01,nsample=100)}
+res <- bspcov::bandPPP(X,2,0.01,nsample=100)
 
 }
 \references{

@@ -32,18 +32,23 @@
 #' @importFrom furrr future_map furrr_options
 #' @importFrom future plan multisession
 #' @importFrom dplyr arrange desc
+#' @importFrom mvtnorm rmvnorm
 #' @import magrittr
 #' @export
 #'
 #' @examples
 #'
-#' \dontrun{
+#' \donttest{
 #' Sigma0 <- diag(1,50)
 #' X <- mvtnorm::rmvnorm(25,sigma = Sigma0)
 #' kvec <- 1:2
 #' epsvec <- c(0.01,0.05)
 #' res <- bspcov::cv.bandPPP(X,kvec,epsvec,nsample=10,ncores=4)
 #' plot(res)}
+#' \dontshow{
+#' # R CMD check: make sure any open connections are closed afterward
+#' if (!inherits(future::plan(), "sequential")) future::plan(future::sequential)
+#' }
 #'
 cv.bandPPP <- function(X, kvec, epsvec, prior = list(), nsample = 2000, ncores = 2){
   stopifnot(!missing(kvec))
