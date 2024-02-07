@@ -33,10 +33,12 @@ R CMD build .
 
 ## Installation
 
-You can install the development version of `bspcov` from [GitHub](https://github.com/statjs/bspcov) with:
-
+You can install the `bspcov` package from [CRAN](https://cran.r-project.org/web/packages/bspcov/index.html):
 ```r
-# install.packages("devtools")
+install.packages("bspcov")
+```
+or the development version from GitHub, by using the function `install_github()` from [`devtools`](https://cran.r-project.org/web/packages/devtools/index.html) package:
+```r
 devtools::install_github("statjs/bspcov", ref = "main")
 ```
 
