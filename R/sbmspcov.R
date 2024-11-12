@@ -208,7 +208,7 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
           W1 = tcrossprod(invSig11.reduced %*% S11, invSig11.reduced)
         }else{
           X.invSig11.reduced = tcrossprod(X[,ind_noi, drop=FALSE], invSig11.reduced)
-          W1 = crossprod(X.invSig11.reduced) /n
+          W1 = crossprod(X.invSig11.reduced)
         }
 
         # Sample gamma (= v in the paper)
