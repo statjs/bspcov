@@ -147,7 +147,7 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list()) {
           W1 <- invSig11 %*% S11 %*% invSig11
         }else{
           X.invSig11 <- X[,ind_noi, drop=FALSE] %*% invSig11
-          W1 <- crossprod(X.invSig11) /n
+          W1 <- crossprod(X.invSig11)
         }
 
         # Sample gamma
