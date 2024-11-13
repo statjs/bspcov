@@ -2,7 +2,9 @@ name: Check R packages (dev, pull-requests)
 
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+      - 'main'
+      - 'dev-**'
     paths-ignore:
       - 'README.md'
       - 'LICENSE.txt'

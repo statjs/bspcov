@@ -37,9 +37,9 @@ jobs:
           check-dir: '"check"'
       
       - name: get version
-        # since this is dev-branch, use the version as the date + dev
+        # since this is dev-branch, use the version as the date + 000
         run: |
-          export VERSION=$(date +'%Y.%m.%d').dev
+          export VERSION=$(date +'%Y.%m.%d').000
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo $VERSION
 
