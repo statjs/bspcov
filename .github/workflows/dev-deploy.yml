@@ -37,9 +37,9 @@ jobs:
           check-dir: '"check"'
       
       - name: get version
-        # since this is dev-branch, use the version as the date + 000
+        # since this is dev-branch, use the version as the date + dev
         run: |
-          export VERSION=$(date +'%Y.%m.%d').000
+          export VERSION=$(date +'%Y.%m.%d').dev
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo $VERSION
 
@@ -47,12 +47,13 @@ jobs:
         run: |
           sed -i "s/Version: [^\"]*/Version: ${VERSION}/g" "DESCRIPTION"
           sed -i "s/Date: [^\"]*/Date: `date +'%Y-%m-%d'`/g" "DESCRIPTION"
-          sed -i "s/Packaged: [^\"]*/Packaged: `date +'%Y-%m-%d %H:%M:%S'` UTC; statjs/g" "DESCRIPTION"
+          sed -i "s/Packaged: [^\"]*/Packaged: `date +'%Y-%m-%d %H:%M:%S'` UTC; Kyeongwon Lee/g" "DESCRIPTION"
       
       - name: build package and manual
         run: |
-          R CMD Rd2pdf --force --no-preview -o bspcov-manual.pdf .
           R CMD build .
+          tar zxvf bspcov_$VERSION.tar.gz   
+          R CMD Rd2pdf --force --no-preview --output=bspcov-manual.pdf bspcov
       
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:

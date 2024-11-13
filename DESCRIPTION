@@ -1,14 +1,19 @@
 Package: bspcov
 Type: Package
 Title: Bayesian Sparse Estimation of a Covariance Matrix
-Version: 1.0.0
-Date: 2024-02-04
-Author: Kwangmin Lee [aut],
-  Kyeongwon Lee <kwlee1718@gmail.com> [aut, cre],
-  Kyoungjae Lee [aut],
-  Seongil Jo [aut],
-  Jaeyong Lee [ctb]
-Maintainer: Kyeongwon Lee <kwlee1718@gmail.com>
+Version: TOBECHANGED
+Date: TOBECHANGED
+Authors@R: c(person("Kwangmin", "Lee",
+                       role = "aut"),
+                person("Kyeongwon", "Lee",
+                       role = c("aut", "cre"),
+                       email = "kwlee1718@gmail.com"),
+                person("Kyoungjae", "Lee",
+                       role = "aut"),
+                person("Seongil", "Jo",
+                       role = "aut"),
+                person("Jaeyong", "Lee",
+                       role = "ctb"))
 Depends:
     R (>= 3.5)
 Description: Provides functions which perform Bayesian estimations of 
@@ -29,5 +34,5 @@ URL: https://github.com/statjs/bspcov
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 NeedsCompilation: no
-Packaged: 2024-02-04 20:01:04 KST; Kyeongwon Lee
+Packaged: TOBECHANGED
 LazyData: true
