@@ -1,6 +1,9 @@
 library(bspcov)
 library(dplyr)
 
+# fix random seed
+set.seed(123)
+
 # load data
 data("SP500_idioerr")
 

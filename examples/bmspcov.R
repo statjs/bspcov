@@ -1,3 +1,6 @@
+# fix random seed
+set.seed(123)
+
 # Dimension
 p <- 12
 n <- 250
