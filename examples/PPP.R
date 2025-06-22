@@ -1,5 +1,5 @@
 # fix random seed
-set.seed(123)
+set.seed(1234)
 
 n <- 25
 p <- 50
