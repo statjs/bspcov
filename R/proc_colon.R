@@ -5,7 +5,7 @@
 #' data("colon")
 #' data("tissues")
 #' set.seed(1234)
-#' colon_data <- proc_colon(colon, tissues = tissues)
+#' colon_data <- proc_colon(colon, tissues)
 #' X <- colon_data$X
 #' \donttest{
 #' foo <- bmspcov(X, Sigma = cov(X))
