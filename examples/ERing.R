@@ -34,7 +34,7 @@ library(caret)
 library(mvnfast)
 library(patchwork)
 
-# visulization
+# visualization
 
 ## function to visualize posterior mean covariance matrix
 vis_postmean <- function(postmean, title) {
