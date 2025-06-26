@@ -5,6 +5,8 @@
 ^LICENSE\.txt$
 ^\.github$
 ^\.git$
+^.*\.Rcheck$
 ^\.DS_Store$
 ^examples$
 ^figs$
+^bspcov_.*\.tar\.gz$

@@ -1,5 +1,38 @@
+#' Preprocess SP500 data
 #'
+#' The \code{proc_SP500} function preprocesses the SP500 stock data by calculating monthly
+#' returns for selected sectors and generating idiosyncratic errors.
 #'
+#' @param SP500data A data frame containing SP500 stock data with columns including:
+#'   \describe{
+#'     \item{symbol}{Stock symbol.}
+#'     \item{date}{Date of the stock data.}
+#'     \item{adjusted}{Adjusted closing price of the stock.}
+#'     \item{sector}{Sector of the stock.}
+#'   }
+#' @param sectors A character vector specifying the sectors to include in the analysis.
+#' @return A list with components:
+#'   \item{Uhat}{A matrix of idiosyncratic errors.}
+#'   \item{Khat}{Estimated number of factors.}
+#'   \item{factorparthat}{Estimated factor returns.}
+#'   \item{sectornames}{Sector for each column of \code{Uhat}.}
+#'
+#' @details
+#' \enumerate{
+#'    \item Calculates monthly returns for each stock in the specified sectors  
+#'    \item Estimates the number of factors via \code{hdbinseg::get.factor.model(ic="ah")}  
+#'    \item Uses \code{POET::POET()} to extract factor loadings/factors and form idiosyncratic errors  
+#' }
+#'
+#' @importFrom dplyr arrange group_by filter select distinct left_join
+#' @importFrom tidyquant tq_transmute
+#' @importFrom tidyr pivot_wider
+#' @importFrom quantmod periodReturn
+#' @importFrom purrr map
+#' @importFrom timetk tk_xts
+#' @importFrom hdbinseg get.factor.model
+#' @importFrom POET POET
+#' @export
 #' @examples
 #'
 #' data("SP500")
@@ -9,12 +42,11 @@
 #' \donttest{
 #' PPPres <- thresPPP(Uhat, eps = 0, thres = list(value = 0.0020, fun = "hard"), nsample = 100)
 #' postmean <- estimate(PPPres)
-#' diag(postmean) <- 0
+#' diag(postmean) <- 0 # hide color for diagonal
 #' plot(postmean)}
 #'
 proc_SP500 <- function(SP500data, sectors) {
   preproc_stock <- function(data, period = "yearly") {
-    library(tidyquant)
     tmo_returns <- data %>%
       dplyr::arrange(sector) %>%
       dplyr::group_by(symbol) %>%

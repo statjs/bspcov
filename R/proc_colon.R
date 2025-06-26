@@ -1,7 +1,33 @@
+#' Preprocess Colon Gene Expression Data
 #'
+#' @description
+#' The \code{proc_colon} function preprocesses colon gene expression data by:
+#' \enumerate{
+#'   \item Log transforming the raw counts.
+#'   \item Performing two-sample t-tests for each gene between normal and tumor samples.
+#'   \item Selecting the top 50 genes by absolute t-statistic.
+#'   \item Returning the filtered expression matrix and sample indices/groups.
+#' }
+#'
+#' @param colon
+#'   A numeric matrix of raw colon gene expression values (genes × samples).
+#'   Rows are genes; columns are samples.
+#' @param tissues
+#'   A numeric vector indicating tissue type per sample:
+#'   positive for normal, negative for tumor.
+#'
+#' @return A list with components:
+#'   \describe{
+#'     \item{X}{A numeric matrix (samples x 50 genes) of selected, log‐transformed expression values.}
+#'     \item{normal_idx}{Integer indices of normal‐tissue columns in the original data.}
+#'     \item{tumor_idx}{Integer indices of tumor‐tissue columns in the original data.}
+#'     \item{group}{Integer vector of length \code{ncol(colon)}, with 1 = normal, 2 = tumor.}
+#'   }
+#'
+#' @importFrom stats t.test
+#' @export
 #'
 #' @examples
-#'
 #' data("colon")
 #' data("tissues")
 #' set.seed(1234)
@@ -9,8 +35,9 @@
 #' X <- colon_data$X
 #' \donttest{
 #' foo <- bmspcov(X, Sigma = cov(X))
-#' sigmah <- estimate(foo)}
-#'
+#' sigmah <- estimate(foo)
+#' }
+
 proc_colon <- function(colon, tissues) {
   colon <- log10(colon)
   N <- ncol(colon)
