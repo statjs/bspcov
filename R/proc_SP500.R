@@ -25,13 +25,7 @@
 #' }
 #'
 #' @importFrom dplyr arrange group_by filter select distinct left_join
-#' @importFrom tidyquant tq_transmute
-#' @importFrom tidyr pivot_wider
-#' @importFrom quantmod periodReturn
 #' @importFrom purrr map
-#' @importFrom timetk tk_xts
-#' @importFrom hdbinseg get.factor.model
-#' @importFrom POET POET
 #' @export
 #' @examples
 #'

@@ -18,8 +18,8 @@ Description: Provides functions which perform Bayesian estimations of
 Imports: GIGrvg, coda, progress, BayesFactor, MASS, mvnfast,
         matrixcalc, matrixStats, purrr, dplyr, RSpectra, Matrix, plyr,
         CholWishart, magrittr, future, furrr, ks, ggplot2, ggmcmc,
-        caret, FinCovRegularization, mvtnorm,
-        hdbinseg, POET, tidyquant, tidyr, timetk, quantmod
+        caret, FinCovRegularization, mvtnorm
+Suggests: hdbinseg, POET, tidyquant, tidyr, timetk, quantmod
 License: GPL-2
 LazyLoad: yes
 URL: https://github.com/statjs/bspcov
