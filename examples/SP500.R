@@ -1,14 +1,22 @@
 library(bspcov)
 library(dplyr)
 
-# load data
-data("SP500_idioerr")
+# fix random seed
+set.seed(1234)
+
+# load and preprocess SP500 data
+data("SP500")
+sectors <- c("Energy", "Financials", "Materials", "Real Estate", "Utilities", "Information Technology")
+SP500_idioerr <- proc_SP500(SP500, sectors)
+Uhat <- SP500_idioerr$Uhat
+sectornames <- SP500_idioerr$sectornames
+PPPres <- thresPPP(Uhat, eps = 0, thres = list(value = 0.0020, fun = "hard"), nsample = 100)
 
 # apply thresPPP
-PPPres <- thresPPP(SP500_idioerr$Uhat, eps = 0, thres = list(value = 0.0020, fun = "hard"), nsample = 100)
 postmean <- estimate(PPPres)
 
 # visualization
+diag(postmean) <- 0 # hide color
 makeheatmap <- function(mat, colgroups, rowgroups = NULL, keepdiag = T) {
   library(pheatmap)
   library(RColorBrewer)
@@ -56,5 +64,5 @@ makeheatmap <- function(mat, colgroups, rowgroups = NULL, keepdiag = T) {
   )
 }
 
-g <- makeheatmap(cov2cor(postmean), SP500_idioerr$sectornames, keepdiag = FALSE)
-ggsave("figs/thresPPPheatmap.png", g, width = 12, height = 9)
+g <- makeheatmap(postmean, sectornames, keepdiag = FALSE)
+ggplot2::ggsave("figs/thresPPPheatmap.png", g, width = 12, height = 9)

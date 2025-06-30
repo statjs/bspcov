@@ -1,3 +1,6 @@
+# fix random seed
+set.seed(1234)
+
 n <- 25
 p <- 50
 Sigma0 <- diag(1, p)
