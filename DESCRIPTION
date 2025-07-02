@@ -4,6 +4,22 @@ Title: Bayesian Sparse Estimation of a Covariance Matrix
 Version: 1.0.2
 Date: 2025-06-26
 Maintainer: Kyeongwon Lee <kwlee1718@gmail.com>
+Authors@R: c(person(given = "Kwangmin",
+                  family = "Lee",
+                  role = "aut"),
+           person(given = "Kyeongwon",
+                  family = "Lee",
+                  role = c("aut", "cre"),
+                  email = "kwlee1718@gmail.com"),
+           person(given = "Kyoungjae",
+                  family = "Lee",
+                  role = "aut"),
+           person(given = "Seongil",
+                  family = "Jo",
+                  role = "aut"),
+           person(given = "Jaeyong",
+                  family = "Lee",
+                  role = "ctb"))
 Author: Kwangmin Lee [aut], Kyeongwon Lee [aut, cre], Kyoungjae Lee [aut], Seongil Jo [aut], Jaeyong Lee [ctb]
 Depends:
     R (>= 3.5)
@@ -18,7 +34,7 @@ Description: Provides functions which perform Bayesian estimations of
 Imports: GIGrvg, coda, progress, BayesFactor, MASS, mvnfast,
         matrixcalc, matrixStats, purrr, dplyr, RSpectra, Matrix, plyr,
         CholWishart, magrittr, future, furrr, ks, ggplot2, ggmcmc,
-        caret, FinCovRegularization, mvtnorm
+        caret, FinCovRegularization, mvtnorm, stats
 Suggests: hdbinseg, POET, tidyquant, tidyr, timetk, quantmod
 License: GPL-2
 LazyLoad: yes

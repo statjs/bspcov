@@ -24,6 +24,7 @@
 #'    \item Uses \code{POET::POET()} to extract factor loadings/factors and form idiosyncratic errors  
 #' }
 #'
+#' @importFrom stats na.omit
 #' @importFrom dplyr arrange group_by filter select distinct left_join
 #' @importFrom purrr map
 #' @export
@@ -31,15 +32,31 @@
 #'
 #' data("SP500")
 #' set.seed(1234)
-#' sectors <- c("Energy", "Financials", "Materials", "Real Estate", "Utilities", "Information Technology")
-#' Uhat <- proc_SP500(SP500, sectors)$Uhat
+#' sectors <- c("Energy", "Financials", "Materials",
+#'    "Real Estate", "Utilities", "Information Technology")
 #' \donttest{
+#' Uhat <- proc_SP500(SP500, sectors)$Uhat
 #' PPPres <- thresPPP(Uhat, eps = 0, thres = list(value = 0.0020, fun = "hard"), nsample = 100)
 #' postmean <- estimate(PPPres)
 #' diag(postmean) <- 0 # hide color for diagonal
 #' plot(postmean)}
 #'
 proc_SP500 <- function(SP500data, sectors) {
+  sector <- symbol <- adjusted <- returns <- NULL
+  if (!requireNamespace("quantmod", quietly = TRUE)) {
+    stop("Package 'quantmod' is required but not installed. Please install it.", call. = FALSE)
+  } else{
+    periodReturn <- quantmod::periodReturn
+  }
+  if (!requireNamespace("tidyquant", quietly = TRUE)) {
+    stop("Package 'tidyquant' is required but not installed. Please install it.", call. = FALSE)
+  }
+  if (!requireNamespace("tidyr", quietly = TRUE)) {
+    stop("Package 'tidyr' is required but not installed. Please install it.", call. = FALSE)
+  }
+  if (!requireNamespace("timetk", quietly = TRUE)) {
+    stop("Package 'timetk' is required but not installed. Please install it.", call. = FALSE)
+  }
   preproc_stock <- function(data, period = "yearly") {
     tmo_returns <- data %>%
       dplyr::arrange(sector) %>%
@@ -66,7 +83,7 @@ proc_SP500 <- function(SP500data, sectors) {
   }
 
   data <- SP500data %>%
-    na.omit() %>%
+    stats::na.omit() %>%
     dplyr::filter(sector %in% sectors)
 
   Ystock <- data %>%
@@ -80,12 +97,12 @@ proc_SP500 <- function(SP500data, sectors) {
     dplyr::arrange(sector) %>%
     dplyr::mutate(symbol = as.character(symbol)) %>%
     dplyr::mutate(sector = as.character(sector))
-  data.frame(symbol = colnames(Ystock)) %>%
+  sectornames <- data.frame(symbol = colnames(Ystock)) %>%
     dplyr::left_join(sector_df, by = "symbol") %>%
-    .$sector -> sectornames
+    .$sector
 
   # image(cov(Ystock))
-  UKhat <- generateUhat(scale(Ystock, scale = FALSE, center = T))
+  UKhat <- generateUhat(scale(Ystock, scale = FALSE, center = TRUE))
   UKhat$sectornames <- sectornames
   return(UKhat)
 }

@@ -39,9 +39,10 @@ returns for selected sectors and generating idiosyncratic errors.
 
 data("SP500")
 set.seed(1234)
-sectors <- c("Energy", "Financials", "Materials", "Real Estate", "Utilities", "Information Technology")
-Uhat <- proc_SP500(SP500, sectors)$Uhat
+sectors <- c("Energy", "Financials", "Materials",
+   "Real Estate", "Utilities", "Information Technology")
 \donttest{
+Uhat <- proc_SP500(SP500, sectors)$Uhat
 PPPres <- thresPPP(Uhat, eps = 0, thres = list(value = 0.0020, fun = "hard"), nsample = 100)
 postmean <- estimate(PPPres)
 diag(postmean) <- 0 # hide color for diagonal
