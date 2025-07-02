@@ -22,7 +22,7 @@ Authors@R: c(person(given = "Kwangmin",
                   role = "ctb"))
 Author: Kwangmin Lee [aut], Kyeongwon Lee [aut, cre], Kyoungjae Lee [aut], Seongil Jo [aut], Jaeyong Lee [ctb]
 Depends:
-    R (>= 3.5)
+    R (>= 4.2)
 Description: Bayesian estimations of a covariance matrix for multivariate 
         normal data. Assumes that the covariance matrix is sparse or band 
         matrix and positive-definite. Methods implemented include the beta-mixture 
