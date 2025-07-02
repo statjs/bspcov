@@ -12,7 +12,7 @@ To build the package from source, you need to have the following:
 
 ```R
 # lock the renv
-pkgs <- c("...")
+pkgs <- c("GIGrvg", "coda", "progress", "BayesFactor", "MASS", "mvnfast", "matrixcalc", "matrixStats", "purrr", "dplyr", "RSpectra", "Matrix", "plyr", "CholWishart", "magrittr", "future", "furrr", "ks", "ggplot2", "ggmcmc", "caret", "FinCovRegularization", "mvtnorm")
 renv::snapshot(packages = pkgs)
 
 # update docs
@@ -44,10 +44,10 @@ devtools::install_github("statjs/bspcov", ref = "main")
 
 ## Related publications
 
-Lee, Jo, and Lee (2022). The beta-mixture shrinkage prior for sparse covariances with posterior near-minimax rate, Journal of Multivariate Analysis, 192, 105067.  
-Lee, Jo, and Lee (2023+). Scalable and optimal Bayesian inference for sparse covariance matrices via screened beta-mixture prior.  
-Lee, Lee, and Lee (2023+). Post-processes posteriors for banded covariances, Bayesian Analysis, DOI: 10.1214/22-BA1333.  
-Lee and Lee (2023). Post-processed posteriors for sparse covariances, Journal of Econometrics, 236(3), 105475.
+* Lee, K., Jo, S., & Lee, J. (2022). The beta-mixture shrinkage prior for sparse covariances with near-minimax posterior convergence rate. Journal of Multivariate Analysis, 192, 105067, DOI: 10.1016/j.jmva.2022.105067.
+* Lee, K., Jo, S., Lee, K., & Lee, J. (2024). Scalable and optimal Bayesian inference for sparse covariance matrices via screened beta-mixture prior. Bayesian Analysis, 1(1), 1-28, DOI: 10.1214/24-BA1495.
+* Lee, K., Lee, K., & Lee, J. (2023). Post-processed posteriors for banded covariances. Bayesian Analysis, 18(3), 1017-1040, DOI: 10.1214/22-BA1333.
+* Lee, K., & Lee, J. (2023). Post-processed posteriors for sparse covariances. Journal of Econometrics, 236(1), 105475, DOI: 10.1016/j.jeconom.2023.105475.
 
 ## Acknowledgement
 

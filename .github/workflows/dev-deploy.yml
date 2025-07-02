@@ -21,7 +21,13 @@ jobs:
         with:
           r-version: 'release'
           use-public-rspm: true
-      
+
+      - name: Install R Package Build Dependencies on MacOS, from https://github.com/tdhock/atime/commit/d3d6220f08c9daa617e880b7cd57c958576f0ff4#diff-9c940e8ad2b7bc4c26ec3da57b94bc00e73e2166cfed689da51a4c59bcc0a310
+        if: ${{ runner.os == 'macOS' }}
+        uses: r-hub/actions/setup-r-sysreqs@v1
+        with:
+          type: 'minimal'
+
       - uses: r-lib/actions/setup-renv@v2
       
       - uses: r-lib/actions/setup-tinytex@v2
