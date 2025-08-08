@@ -7,3 +7,4 @@ bspcov.Rcheck
 bspcov_*.tar.gz
 bspcov_*.zip
 bspcov-manual.pdf
+CHANGELOG.md

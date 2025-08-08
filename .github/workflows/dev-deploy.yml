@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history for git log commands
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -51,13 +53,29 @@ jobs:
 
       - name: generate changelog
         run: |
+          # Ensure we have the main branch reference
+          git fetch origin main:main || echo "Could not fetch main branch"
+          
           echo "## Changes since main branch" > CHANGELOG.md
           echo "" >> CHANGELOG.md
-          git log --format="### %s%n%n%b%n" main..HEAD >> CHANGELOG.md
-          echo "" >> CHANGELOG.md
-          echo "## Commit History" >> CHANGELOG.md
-          echo "" >> CHANGELOG.md
-          git log --oneline main..HEAD | sed 's/^/- /' >> CHANGELOG.md
+          
+          # Check if main branch exists and has commits to compare
+          if git rev-parse --verify main >/dev/null 2>&1 && git rev-list main..HEAD >/dev/null 2>&1; then
+            git log --format="### %s%n%n%b%n" main..HEAD >> CHANGELOG.md || echo "No commits found since main branch"
+            echo "" >> CHANGELOG.md
+            echo "## Commit History" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --oneline main..HEAD | sed 's/^/- /' >> CHANGELOG.md || echo "No commit history available"
+          else
+            echo "### Recent commits on this branch" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --format="### %s%n%n%b%n" -10 >> CHANGELOG.md || echo "No commits available"
+            echo "" >> CHANGELOG.md
+            echo "## Recent Commit History" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log --oneline -10 | sed 's/^/- /' >> CHANGELOG.md || echo "No commit history available"
+          fi
+          
           cat CHANGELOG.md
 
       - name: update DESCRIPTION (version and date)
