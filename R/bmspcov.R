@@ -30,7 +30,7 @@
 #' \code{nmc (1000)} giving the number of MCMC samples for analysis.
 #' @param nchain number of MCMC chains to run. Default is 1.
 #' @param seed random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.
-#' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE.
+#' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. Parallel processing uses proper parallel-safe RNG.
 #'
 #' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
 #' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
@@ -92,7 +92,7 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
 
   if (nchain > 1) {
     if (do.parallel) {
-      # Parallel processing
+      # Parallel processing with proper RNG handling
       if (!requireNamespace("future.apply", quietly = TRUE)) {
         stop("Please install the 'future.apply' package for parallel processing.")
       }
@@ -107,7 +107,7 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
         out_list <- future.apply::future_lapply(1:nchain, function(i) {
           chain_seed <- if (is.null(seed)) NULL else seed + i - 1
           bmspcov(X, Sigma, prior, nsample, nchain = 1, seed = chain_seed)
-        })
+        }, future.seed = TRUE)
       }, error = function(e) {
         stop("Error in parallel processing: ", e$message)
       })
