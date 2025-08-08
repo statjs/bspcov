@@ -49,6 +49,17 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo $VERSION
 
+      - name: generate changelog
+        run: |
+          echo "## Changes since main branch" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          git log --format="### %s%n%n%b%n" main..HEAD >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "## Commit History" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          git log --oneline main..HEAD | sed 's/^/- /' >> CHANGELOG.md
+          cat CHANGELOG.md
+
       - name: update DESCRIPTION (version and date)
         run: |
           sed -i "s/Version: [^\"]*/Version: ${VERSION}/g" "DESCRIPTION"
@@ -61,13 +72,17 @@ jobs:
           tar zxvf bspcov_$VERSION.tar.gz   
           R CMD Rd2pdf --force --no-preview --output=bspcov-manual.pdf bspcov
       
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "dev-latest"
-          prerelease: true
-          title: "Development Build"
-          files: |
-            bspcov-manual.pdf
+      - name: create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Delete existing dev-latest release if it exists
+          gh release delete dev-latest --yes || true
+          
+          # Create new release with changelog
+          gh release create dev-latest \
+            --title "Development Build" \
+            --notes-file CHANGELOG.md \
+            --prerelease \
+            bspcov-manual.pdf \
             bspcov_*.tar.gz
-            bspcov_*.zip
