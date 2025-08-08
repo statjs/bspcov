@@ -28,11 +28,16 @@
 #' The list includes the following integers (with default values in parentheses):
 #' \code{burnin (1000)} giving the number of MCMC samples in transition period,
 #' \code{nmc (1000)} giving the number of MCMC samples for analysis.
+#' @param nchain number of MCMC chains to run. Default is 1.
+#' @param seed random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.
+#' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE.
 #'
-#' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix.}
-#' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix.}
+#' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
+#' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
 #' \item{p}{dimension of covariance matrix.}
-#' @author Kyoungjae Lee and Seongil Jo
+#' \item{mcmctime}{elapsed time for MCMC sampling. For multiple chains, this becomes a list.}
+#' \item{nchain}{number of chains used.}
+#' @author Kyoungjae Lee, Seongil Jo, and Kyeongwon Lee
 #' @seealso sbmspcov
 #' @keywords sparse covariance
 #'
@@ -74,8 +79,60 @@
 #' sqrt(mean((post.est.m - True.Sigma)^2))
 #' sqrt(mean((cov(X) - True.Sigma)^2))
 #'
-bmspcov <- function(X, Sigma, prior = list(), nsample = list()) {
+#' # Multiple chains example:
+#' # fout_multi <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))), nchain = 3)
+#' # post.est.multi <- bspcov::estimate(fout_multi)
+#'
+bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
+  nchain = 1, seed = NULL, do.parallel = FALSE) {
   # Estimate a sparse covariance matrix using beta-mixture shrinkage prior
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+
+  if (nchain > 1) {
+    if (do.parallel) {
+      # Parallel processing
+      if (!requireNamespace("future.apply", quietly = TRUE)) {
+        stop("Please install the 'future.apply' package for parallel processing.")
+      }
+      # Check if future plan is set up
+      if (!requireNamespace("future", quietly = TRUE)) {
+        stop("Please install the 'future' package for parallel processing.")
+      }
+      if (inherits(future::plan(), "sequential")) {
+        warning("Future plan is set to sequential. Consider setting up a parallel plan with future::plan() for better performance.")
+      }
+      tryCatch({
+        out_list <- future.apply::future_lapply(1:nchain, function(i) {
+          chain_seed <- if (is.null(seed)) NULL else seed + i - 1
+          bmspcov(X, Sigma, prior, nsample, nchain = 1, seed = chain_seed)
+        })
+      }, error = function(e) {
+        stop("Error in parallel processing: ", e$message)
+      })
+    } else {
+      out_list <- list()
+      for (i in 1:nchain) {
+        chain_seed <- if (is.null(seed)) NULL else seed + i - 1
+        out_list[[i]] <- bmspcov(X, Sigma, prior, nsample, nchain = 1, seed = chain_seed)
+      }
+    }
+    out <- list()
+    out$prior <- 'bmsp'
+    out$p <- out_list[[1]]$p
+    out$n_chain <- nchain
+    out$Sigma <- list()
+    out$Phi <- list()
+    out$mcmctime <- list()
+    for (i in 1:nchain) {
+      out$Sigma[[i]] <- out_list[[i]]$Sigma
+      out$Phi[[i]] <- out_list[[i]]$Phi
+      out$mcmctime[[i]] <- out_list[[i]]$mcmctime
+    }
+    class(out) <- 'bspcov'
+    return(out)
+  }
 
   n <- nrow(X)
   p <- ncol(X)
@@ -218,6 +275,7 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list()) {
   out$Phi <- Phi_save
   out$p <- p
   out$mcmctime <- elapsed.time
+  out$nchain <- 1
   class(out) <- 'bspcov'
   out
 }

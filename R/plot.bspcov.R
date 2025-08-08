@@ -1,15 +1,16 @@
 #' Plot Diagnostics of Posterior Samples and Cross-Validation
 #'
-#' Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation
+#' Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation.
+#' For multiple chains, each chain is displayed in a different color for convergence assessment.
 #'
 #' @param x an object from \strong{bmspcov}, \strong{sbmspcov}, \strong{cv.bandPPP}, and \strong{cv.thresPPP}.
 #' @param ... additional arguments for ggplot2.
 #' @param cols a scalar or a vector including specific column indices for the trace plot.
 #' @param rows a scalar or a vector including specific row indices greater than or equal to columns indices for the trace plot.
-#' @return \item{plot}{a plot for diagnostics of posterior samples \strong{x}.}
-#' @author Seongil Jo
+#' @return \item{plot}{a plot for diagnostics of posterior samples \strong{x}. For multiple chains, returns colored trace plots with each chain in a different color.}
+#' @author Seongil Jo and Kyeongwon Lee
 #'
-#' @importFrom coda mcmc
+#' @importFrom coda mcmc mcmc.list
 #' @importFrom ggmcmc ggs ggs_traceplot
 #' @importFrom magrittr `%>%`
 #' @importFrom mvtnorm rmvnorm
@@ -68,14 +69,32 @@ plot.bspcov <- function(x, ..., cols, rows) {
     }
     stopifnot(all(cols <= p))
     stopifnot(all(rows <= p))
-    if ((length(cols)>1) & (length(rows)>1)) {
+    if ((length(cols)>1) && (length(rows)>1)) {
       stopifnot(length(cols) == length(rows))
     }
 
-    # posterior samples
-    post.sample <- t(apply(x$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
-    colnames(post.sample) <- paste('sigma[',rows,',',cols,']',sep='')
-    post.sample %>% mcmc %>% ggs %>% ggs_traceplot
+    # Handle multiple chains vs single chain
+    if (is.list(x$Sigma)) {
+      # Multiple chains case - create mcmc.list for colored traces
+      nchain <- length(x$Sigma)
+      mcmc_list <- list()
+      
+      for (i in 1:nchain) {
+        chain_sample <- t(apply(x$Sigma[[i]], 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
+        colnames(chain_sample) <- paste('sigma[',rows,',',cols,']',sep='')
+        mcmc_list[[i]] <- coda::mcmc(chain_sample)
+      }
+      
+      # Convert to mcmc.list and plot with ggmcmc
+      mcmc_list <- coda::mcmc.list(mcmc_list)
+      mcmc_list %>% ggmcmc::ggs() %>% ggmcmc::ggs_traceplot()
+      
+    } else {
+      # Single chain case (original code)
+      post.sample <- t(apply(x$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
+      colnames(post.sample) <- paste('sigma[',rows,',',cols,']',sep='')
+      post.sample %>% coda::mcmc() %>% ggmcmc::ggs() %>% ggmcmc::ggs_traceplot()
+    }
   } else {
     if (x$ppp == 'cv.band') {
       ggplot2::qplot(y = x$elpd$logpdf, ylab = 'Expected Log Predictive Density (ELPD)', ...) +
