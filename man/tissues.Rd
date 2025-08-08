@@ -5,7 +5,7 @@
 \alias{tissues}
 \title{tissues dataset}
 \format{
-`numeric`
+numeric
 }
 \source{
 http://genomics-pubs.princeton.edu/oncology/affydata/.
