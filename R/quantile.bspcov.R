@@ -3,7 +3,7 @@
 #' Compute quantiles to describe posterior distribution.
 #' For multiple chains, combines all chains to compute more robust quantiles.
 #'
-#' @param object an object from \strong{bandPPP}, \strong{bmspcov}, \strong{sbmspcov}, and \strong{thresPPP}.
+#' @param x an object from \strong{bandPPP}, \strong{bmspcov}, \strong{sbmspcov}, and \strong{thresPPP}.
 #' @param probs numeric vector of probabilities with values in [0,1]. Default is c(0.025, 0.5, 0.975).
 #' @param ... additional arguments for quantile.
 #'
@@ -12,6 +12,7 @@
 #' @seealso estimate, plot.postmean.bspcov
 #'
 #' @importFrom ks invvech
+#' @importFrom stats quantile
 #' @export
 #'
 #' @examples
@@ -21,17 +22,12 @@
 #' Sigma0 <- diag(1, p)
 #' X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
 #' res <- bspcov::bandPPP(X,2,0.01,nsample=100)
-#' quant <- bspcov::quantile(res)
+#' quant <- quantile(res)
 #' # Get 95% credible intervals
-#' quant <- bspcov::quantile(res, probs = c(0.025, 0.975))
+#' quant <- quantile(res, probs = c(0.025, 0.975))
 #'
-quantile <- function(x, ...) {
-  UseMethod("quantile")
-}
-
-#' @rdname quantile
-#' @export
-quantile.bspcov <- function(object, probs = c(0.025, 0.5, 0.975), ...) {
+quantile.bspcov <- function(x, probs = c(0.025, 0.5, 0.975), ...) {
+  object <- x  # For compatibility with generic
   stopifnot(!is.null(object$Sigma))
   stopifnot(all(probs >= 0 & probs <= 1))
 
@@ -42,14 +38,14 @@ quantile.bspcov <- function(object, probs = c(0.025, 0.5, 0.975), ...) {
     combined_samples <- do.call(rbind, object$Sigma)
     
     # Compute quantiles for each column (vech element)
-    quantile_matrix <- apply(combined_samples, 2, quantile, probs = probs)
+    quantile_matrix <- apply(combined_samples, 2, stats::quantile, probs = probs)
     
   } else {
     # Single chain case (original code)
     post.sample <- object$Sigma
     
     # Compute quantiles for each column (vech element)
-    quantile_matrix <- apply(post.sample, 2, quantile, probs = probs)
+    quantile_matrix <- apply(post.sample, 2, stats::quantile, probs = probs)
   }
 
   # Convert each quantile level to a matrix

@@ -27,7 +27,7 @@ p <- 50
 Sigma0 <- diag(1, p)
 X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
 res <- bspcov::bandPPP(X, 2, 0.01, nsample = 100)
-quant <- bspcov::quantile(res)
+quant <- quantile(res)
 
 # Save uncertainty plot
 save_quantile_plot(quant, "uncertainty_plot.png")
