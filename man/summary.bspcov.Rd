@@ -4,7 +4,7 @@
 \alias{summary.bspcov}
 \title{Summary of Posterior Distribution}
 \usage{
-\method{summary}{bspcov}(object, cols, rows, ...)
+\method{summary}{bspcov}(object, cols, rows, quantiles = c(0.025, 0.25, 0.5, 0.75, 0.975), ...)
 }
 \arguments{
 \item{object}{an object from \strong{bandPPP}, \strong{bmspcov}, \strong{sbmspcov}, and \strong{thresPPP}.}
@@ -13,10 +13,12 @@
 
 \item{rows}{a scalar or a vector including specific row indices greater than or equal to columns indices.}
 
+\item{quantiles}{a numeric vector of quantiles to compute. Default is c(0.025, 0.25, 0.5, 0.75, 0.975).}
+
 \item{...}{additional arguments for the summary function.}
 }
 \value{
-\item{summary}{a table of summary statistics including empirical mean, standard deviation, and quantiles for posterior samples}
+\item{summary}{a table of summary statistics including empirical mean, standard deviation, and quantiles for posterior samples. For multiple chains, also includes effective sample size (n_eff) and R-hat diagnostics.}
 }
 \description{
 Provides the summary statistics for posterior samples of covariance matrix.
@@ -52,7 +54,14 @@ fout <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))))
 summary(fout, cols = c(1, 3, 4), rows = c(1, 3, 4))
 summary(fout, cols = 1, rows = 1:p)
 
+# Custom quantiles:
+summary(fout, cols = 1, rows = 1:3, quantiles = c(0.05, 0.5, 0.95))
+
+# Multiple chains with diagnostics:
+# fout_multi <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))), nchain = 3)
+# summary(fout_multi, cols = 1, rows = 1:3)  # Shows n_eff, R-hat, and nchain
+
 }
 \author{
-Seongil Jo
+Seongil Jo and Kyeongwon Lee
 }

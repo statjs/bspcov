@@ -15,10 +15,11 @@ estimate(object, ...)
 \item{...}{additional arguments for estimate.}
 }
 \value{
-\item{Sigma}{the point estimate (mean) of covariance matrix.}
+\item{Sigma}{the point estimate (mean) of covariance matrix. For multiple chains, uses combined samples from all chains.}
 }
 \description{
 Compute the point estimate (mean) to describe posterior distribution.
+For multiple chains, combines all chains to compute a more robust estimate.
 }
 \examples{
 
@@ -34,5 +35,5 @@ est <- bspcov::estimate(res)
 plot.postmean.bspcov
 }
 \author{
-Seongil Jo
+Seongil Jo and Kyeongwon Lee
 }

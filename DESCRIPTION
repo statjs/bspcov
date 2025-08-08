@@ -38,7 +38,7 @@ Description: Bayesian estimations of a covariance matrix for multivariate
 Imports: GIGrvg, coda, progress, BayesFactor, MASS, mvnfast,
         matrixcalc, matrixStats, purrr, dplyr, RSpectra, Matrix, plyr,
         CholWishart, magrittr, future, furrr, ks, ggplot2, ggmcmc,
-        caret, FinCovRegularization, mvtnorm, stats
+        caret, FinCovRegularization, mvtnorm, stats, patchwork, reshape2
 Suggests: hdbinseg, POET, tidyquant, tidyr, timetk, quantmod
 License: GPL-2
 LazyLoad: yes

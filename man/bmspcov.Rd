@@ -4,7 +4,15 @@
 \alias{bmspcov}
 \title{Bayesian Sparse Covariance Estimation}
 \usage{
-bmspcov(X, Sigma, prior = list(), nsample = list())
+bmspcov(
+  X,
+  Sigma,
+  prior = list(),
+  nsample = list(),
+  nchain = 1,
+  seed = NULL,
+  do.parallel = FALSE
+)
 }
 \arguments{
 \item{X}{a n \eqn{\times} p data matrix with column mean zero.}
@@ -21,11 +29,19 @@ The list includes the following parameters (with default values in parentheses):
 The list includes the following integers (with default values in parentheses):
 \code{burnin (1000)} giving the number of MCMC samples in transition period,
 \code{nmc (1000)} giving the number of MCMC samples for analysis.}
+
+\item{nchain}{number of MCMC chains to run. Default is 1.}
+
+\item{seed}{random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.}
+
+\item{do.parallel}{logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. Parallel processing uses proper parallel-safe RNG.}
 }
 \value{
-\item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix.}
-\item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix.}
+\item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
+\item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
 \item{p}{dimension of covariance matrix.}
+\item{mcmctime}{elapsed time for MCMC sampling. For multiple chains, this becomes a list.}
+\item{nchain}{number of chains used.}
 }
 \description{
 Provides a Bayesian sparse and positive definite estimate of a covariance matrix via the beta-mixture shrinkage prior.
@@ -75,6 +91,10 @@ post.est.m <- bspcov::estimate(fout)
 sqrt(mean((post.est.m - True.Sigma)^2))
 sqrt(mean((cov(X) - True.Sigma)^2))
 
+# Multiple chains example:
+# fout_multi <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))), nchain = 3)
+# post.est.multi <- bspcov::estimate(fout_multi)
+
 }
 \references{
 Lee, K., Jo, S., and Lee, J. (2022), "The beta-mixture shrinkage prior for sparse covariances with near-minimax posterior convergence rate",
@@ -84,7 +104,7 @@ Lee, K., Jo, S., and Lee, J. (2022), "The beta-mixture shrinkage prior for spars
 sbmspcov
 }
 \author{
-Kyoungjae Lee and Seongil Jo
+Kyoungjae Lee, Seongil Jo, and Kyeongwon Lee
 }
 \keyword{covariance}
 \keyword{sparse}
