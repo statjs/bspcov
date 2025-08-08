@@ -112,8 +112,9 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list()) {
   lam <- 1 - n/2
 
   # initial values
-  if(min(eigen(Sigma)$val) <= 1e-15) {
-    Sigma <- Sigma + (-min(eigen(Sigma)$values) + 0.001)*diag(p)
+  min_eig <- min(eigen(Sigma, only.values = TRUE)$values)
+  if(min_eig <= 1e-15) {
+    Sigma <- Sigma + (-min_eig + 0.001)*diag(p)
   }
   C <- solve(Sigma)
   Phi <- matrix(1, p, p)
@@ -168,9 +169,8 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list()) {
             W_chol <<- chol(W)
           }
         )
-        W_i <- chol2inv(W_chol)
-        mu_i <- (W_i %*% invSig11S12)/gam
-        beta <- mvnfast::rmvn(n=1, mu=mu_i, sigma=W_i)[,,drop=TRUE]
+        mu_i <- backsolve(W_chol, forwardsolve(t(W_chol), invSig11S12)) / gam
+        beta <- mu_i + backsolve(W_chol, rnorm(length(mu_i)))
 
         Sigma[ind_noi, i] <- beta
         Sigma[i, ind_noi] <- beta

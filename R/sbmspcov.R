@@ -172,9 +172,9 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
   Sigma_save <- Phi_save <- matrix(0, nrow = nmc, ncol = p*(p+1)/2)
 
   # initial values
-  Rho <- matrix(0.5, p, p)
-  if(min(eigen(Sigma)$val) <= 1e-15) {
-    Sigma <- Sigma + (-min(eigen(Sigma)$values) + 0.001)*diag(p)
+  min_eig <- min(eigen(Sigma, only.values = TRUE)$values)
+  if(min_eig <= 1e-15) {
+    Sigma <- Sigma + (-min_eig + 0.001)*diag(p)
   }
   C <- solve(Sigma)
   tau <- matrix(tau1sq, p, p)
@@ -232,9 +232,8 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
             W_chol <<- chol(W)
           }
         )
-        W_i <- chol2inv(W_chol)
-        mu_i <- (W_i %*% invSig11S12.reduced)/gam
-        beta <- mvnfast::rmvn(n=1, mu=mu_i, sigma=W_i)[,,drop=TRUE]
+        mu_i <- backsolve(W_chol, forwardsolve(t(W_chol), invSig11S12.reduced)) / gam
+        beta <- mu_i + backsolve(W_chol, rnorm(length(mu_i)))
 
         Sigma[ind_nozeroi, i] <- beta
         Sigma[i, ind_nozeroi] <- beta
