@@ -49,6 +49,7 @@
 #' @importFrom GIGrvg rgig
 #' @importFrom matrixcalc is.positive.definite
 #' @importFrom progress progress_bar
+#' @importFrom future.apply future_lapply
 #' @export
 #' @examples
 #'

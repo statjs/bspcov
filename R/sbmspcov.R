@@ -60,6 +60,7 @@
 #' @importFrom mvnfast rmvn
 #' @importFrom GIGrvg rgig
 #' @importFrom progress progress_bar
+#' @importFrom future.apply future_lapply
 #' @export
 #'
 #' @examples
