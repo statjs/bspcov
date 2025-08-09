@@ -30,7 +30,7 @@
 #' \code{nmc (1000)} giving the number of MCMC samples for analysis.
 #' @param nchain number of MCMC chains to run. Default is 1.
 #' @param seed random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.
-#' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. Parallel processing uses proper parallel-safe RNG.
+#' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. When TRUE, automatically sets up a multisession plan with nchain workers if no parallel plan is already configured.
 #'
 #' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
 #' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
@@ -80,9 +80,12 @@
 #' sqrt(mean((post.est.m - True.Sigma)^2))
 #' sqrt(mean((cov(X) - True.Sigma)^2))
 #'
-#' # Multiple chains example:
-#' # fout_multi <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))), nchain = 3)
+#' # Multiple chains example with parallel processing:
+#' # fout_multi <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))), 
+#' #                               nchain = 4, do.parallel = TRUE)
 #' # post.est.multi <- bspcov::estimate(fout_multi)
+#' # When do.parallel = TRUE, the function automatically sets up 
+#' # a multisession plan with nchain workers for parallel execution.
 #'
 bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
   nchain = 1, seed = NULL, do.parallel = FALSE) {
@@ -92,18 +95,16 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
   }
 
   if (nchain > 1) {
-    if (do.parallel) {
-      # Parallel processing with proper RNG handling
-      if (!requireNamespace("future.apply", quietly = TRUE)) {
-        stop("Please install the 'future.apply' package for parallel processing.")
+    # Generate list of results using either parallel or sequential processing
+    if (do.parallel && requireNamespace("future.apply", quietly = TRUE) && 
+        requireNamespace("future", quietly = TRUE)) {
+      # Set up parallel plan if not already configured
+      original_plan <- future::plan()
+      if (inherits(original_plan, "sequential")) {
+        future::plan(future::multisession, workers = nchain)
+        on.exit(future::plan(original_plan), add = TRUE)
       }
-      # Check if future plan is set up
-      if (!requireNamespace("future", quietly = TRUE)) {
-        stop("Please install the 'future' package for parallel processing.")
-      }
-      if (inherits(future::plan(), "sequential")) {
-        warning("Future plan is set to sequential. Consider setting up a parallel plan with future::plan() for better performance.")
-      }
+      
       tryCatch({
         out_list <- future.apply::future_lapply(1:nchain, function(i) {
           chain_seed <- if (is.null(seed)) NULL else seed + i - 1
@@ -113,6 +114,12 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
         stop("Error in parallel processing: ", e$message)
       })
     } else {
+      # Sequential processing (either do.parallel = FALSE or packages not available)
+      if (do.parallel && (!requireNamespace("future.apply", quietly = TRUE) || 
+                          !requireNamespace("future", quietly = TRUE))) {
+        warning("Parallel processing requested but required packages not available. Using sequential processing.")
+      }
+      
       out_list <- list()
       for (i in 1:nchain) {
         chain_seed <- if (is.null(seed)) NULL else seed + i - 1

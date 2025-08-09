@@ -34,7 +34,7 @@ The list includes the following integers (with default values in parentheses):
 
 \item{seed}{random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.}
 
-\item{do.parallel}{logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. Parallel processing uses proper parallel-safe RNG.}
+\item{do.parallel}{logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. When TRUE, automatically sets up a multisession plan with nchain workers if no parallel plan is already configured.}
 }
 \value{
 \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
@@ -91,9 +91,12 @@ post.est.m <- bspcov::estimate(fout)
 sqrt(mean((post.est.m - True.Sigma)^2))
 sqrt(mean((cov(X) - True.Sigma)^2))
 
-# Multiple chains example:
-# fout_multi <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))), nchain = 3)
+# Multiple chains example with parallel processing:
+# fout_multi <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))), 
+#                               nchain = 4, do.parallel = TRUE)
 # post.est.multi <- bspcov::estimate(fout_multi)
+# When do.parallel = TRUE, the function automatically sets up 
+# a multisession plan with nchain workers for parallel execution.
 
 }
 \references{
