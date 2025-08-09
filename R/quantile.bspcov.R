@@ -16,15 +16,18 @@
 #' @export
 #'
 #' @examples
-#'
+#' \donttest{
+#' # Example with simulated data
 #' n <- 25
 #' p <- 50
 #' Sigma0 <- diag(1, p)
 #' X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
-#' res <- bspcov::bandPPP(X,2,0.01,nsample=100)
+#' res <- bspcov::bandPPP(X, 2, 0.01, nsample=100)
 #' quant <- quantile(res)
+#' 
 #' # Get 95% credible intervals
 #' quant <- quantile(res, probs = c(0.025, 0.975))
+#' }
 #'
 quantile.bspcov <- function(x, probs = c(0.025, 0.5, 0.975), ...) {
   object <- x  # For compatibility with generic

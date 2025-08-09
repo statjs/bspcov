@@ -17,7 +17,8 @@
 #' @export
 #'
 #' @examples
-#'
+#' \donttest{
+#' # Example with simulated data
 #' set.seed(1)
 #' n <- 20
 #' p <- 5
@@ -46,10 +47,7 @@
 #'
 #' # Custom quantiles:
 #' summary(fout, cols = 1, rows = 1:3, quantiles = c(0.05, 0.5, 0.95))
-#'
-#' # Multiple chains with diagnostics:
-#' # fout_multi <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))), nchain = 3)
-#' # summary(fout_multi, cols = 1, rows = 1:3)  # Shows n_eff, R-hat, and nchain
+#' }
 #'
 summary.bspcov <- function(object, cols, rows, quantiles = c(0.025, 0.25, 0.5, 0.75, 0.975), ...) {
   stopifnot(!is.null(object$Sigma))

@@ -58,7 +58,8 @@ Create visualization plots for posterior quantiles of covariance matrices.
 Produces heatmap visualizations showing uncertainty across different quantile levels.
 }
 \examples{
-
+\donttest{
+# Example with simulated data
 n <- 25
 p <- 50
 Sigma0 <- diag(1, p)
@@ -72,12 +73,7 @@ plot(quant)
 # Plot with custom titles and labels
 plot(quant, titles = c("Lower Bound", "Median", "Upper Bound"),
      x_label = "Variable", y_label = "Variable")
-
-# Plot with gene-specific labels
-plot(quant, x_label = "Gene", y_label = "Gene")
-
-# Plot comparison layout
-plot(quant, type = "comparison", ncol = 3)
+}
 
 }
 \seealso{
