@@ -41,6 +41,7 @@
 #' @param nchain number of MCMC chains to run. Default is 1.
 #' @param seed random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.
 #' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. When TRUE, automatically sets up a multisession plan with nchain workers if no parallel plan is already configured.
+#' @param show_progress logical indicating whether to show progress bars during MCMC sampling. Default is TRUE. Automatically set to FALSE for individual chains when running in parallel.
 #'
 #' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
 #' \item{p}{dimension of covariance matrix.}
@@ -102,7 +103,7 @@
 #' # a multisession plan with nchain workers for parallel execution.
 #'
 sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list(),
-  nchain = 1, seed = NULL, do.parallel = FALSE) {
+  nchain = 1, seed = NULL, do.parallel = FALSE, show_progress = TRUE) {
   # Estimate a sparse covariance matrix using the screened beta-mixture shrinkage prior
   if (!is.null(seed)) {
     set.seed(seed)
@@ -124,14 +125,20 @@ sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()
         on.exit(future::plan(original_plan), add = TRUE)
       }
       
+      # Show parallel processing message
+      cat("Running", nchain, "chains in parallel...\n")
+      
       tryCatch({
         out_list <- future.apply::future_lapply(1:nchain, function(i) {
           chain_seed <- if (is.null(seed)) NULL else seed + i - 1
-          sbmspcov(X, Sigma, cutoff, prior, nsample, nchain = 1, seed = chain_seed)
+          sbmspcov(X, Sigma, cutoff, prior, nsample, nchain = 1, seed = chain_seed, 
+                   show_progress = FALSE)  # Disable progress bars for parallel chains
         }, future.seed = TRUE)
       }, error = function(e) {
         stop("Error in parallel processing: ", e$message)
       })
+      
+      cat("Parallel processing completed.\n")
     } else {
       # Sequential processing (either do.parallel = FALSE or packages not available)
       if (do.parallel && (!requireNamespace("future.apply", quietly = TRUE) || 
@@ -141,6 +148,7 @@ sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()
       
       out_list <- list()
       for (i in 1:nchain) {
+        cat("Running chain", i, "of", nchain, "...\n")
         chain_seed <- if (is.null(seed)) NULL else seed + i - 1
         out_list[[i]] <- sbmspcov(X, Sigma, cutoff, prior, nsample, nchain = 1, seed = chain_seed)
       }
@@ -209,7 +217,8 @@ sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()
   # Estimating covariance using SBM prior
   sbmout <- sbm.covest(X=X, S=crossprod(X), n=n, p=p, Sigma=Sigma, a=privals$a, b=privals$b,
                        lambda=privals$lambda, tau1sq=privals$tau1sq,
-                       INDzero, burnin=mcvals$burnin, nmc=mcvals$nmc)
+                       INDzero, burnin=mcvals$burnin, nmc=mcvals$nmc, 
+                       show_progress=show_progress)
 
   out <- sbmout
   out$INDzero <- INDzero
@@ -225,7 +234,7 @@ sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()
 
 
 # Estimating covariance using SBM prior
-sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin, nmc) {
+sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin, nmc, show_progress = TRUE) {
 
   ind_noi_all <- list()
   ind_nozeroi_all <- list()
@@ -261,10 +270,14 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
   lam <- 1-n/2
 
   # blocked gibbs sampler
-  pb <- progress::progress_bar$new(total = burnin+nmc)
+  if (show_progress) {
+    pb <- progress::progress_bar$new(total = burnin+nmc)
+  }
   elapsed.time <- system.time({
   for (iter in 1:(burnin+nmc)) {
-    pb$tick()
+    if (show_progress) {
+      pb$tick()
+    }
 
     for (i in 1:p) {
       ind_noi <- ind_noi_all[[i]]

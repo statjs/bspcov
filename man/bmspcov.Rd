@@ -11,7 +11,8 @@ bmspcov(
   nsample = list(),
   nchain = 1,
   seed = NULL,
-  do.parallel = FALSE
+  do.parallel = FALSE,
+  show_progress = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ The list includes the following integers (with default values in parentheses):
 \item{seed}{random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.}
 
 \item{do.parallel}{logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. When TRUE, automatically sets up a multisession plan with nchain workers if no parallel plan is already configured.}
+
+\item{show_progress}{logical indicating whether to show progress bars during MCMC sampling. Default is TRUE. Automatically set to FALSE for individual chains when running in parallel.}
 }
 \value{
 \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}

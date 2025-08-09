@@ -31,6 +31,7 @@
 #' @param nchain number of MCMC chains to run. Default is 1.
 #' @param seed random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.
 #' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. When TRUE, automatically sets up a multisession plan with nchain workers if no parallel plan is already configured.
+#' @param show_progress logical indicating whether to show progress bars during MCMC sampling. Default is TRUE. Automatically set to FALSE for individual chains when running in parallel.
 #'
 #' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
 #' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
@@ -88,7 +89,7 @@
 #' # a multisession plan with nchain workers for parallel execution.
 #'
 bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
-  nchain = 1, seed = NULL, do.parallel = FALSE) {
+  nchain = 1, seed = NULL, do.parallel = FALSE, show_progress = TRUE) {
   # Estimate a sparse covariance matrix using beta-mixture shrinkage prior
   if (!is.null(seed)) {
     set.seed(seed)
@@ -105,14 +106,20 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
         on.exit(future::plan(original_plan), add = TRUE)
       }
       
+      # Show parallel processing message
+      cat("Running", nchain, "chains in parallel...\n")
+      
       tryCatch({
         out_list <- future.apply::future_lapply(1:nchain, function(i) {
           chain_seed <- if (is.null(seed)) NULL else seed + i - 1
-          bmspcov(X, Sigma, prior, nsample, nchain = 1, seed = chain_seed)
+          bmspcov(X, Sigma, prior, nsample, nchain = 1, seed = chain_seed, 
+                  show_progress = FALSE)  # Disable progress bars for parallel chains
         }, future.seed = TRUE)
       }, error = function(e) {
         stop("Error in parallel processing: ", e$message)
       })
+      
+      cat("Parallel processing completed.\n")
     } else {
       # Sequential processing (either do.parallel = FALSE or packages not available)
       if (do.parallel && (!requireNamespace("future.apply", quietly = TRUE) || 
@@ -122,6 +129,7 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
       
       out_list <- list()
       for (i in 1:nchain) {
+        cat("Running chain", i, "of", nchain, "...\n")
         chain_seed <- if (is.null(seed)) NULL else seed + i - 1
         out_list[[i]] <- bmspcov(X, Sigma, prior, nsample, nchain = 1, seed = chain_seed)
       }
@@ -193,9 +201,13 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
   # blocked gibbs sampler
   nmcmc <- burnin + nmc
   elapsed.time <- system.time({
-    pb <- progress::progress_bar$new(total = nmcmc)
+    if (show_progress) {
+      pb <- progress::progress_bar$new(total = nmcmc)
+    }
     for (iter in 1:nmcmc) {
-      pb$tick()
+      if (show_progress) {
+        pb$tick()
+      }
 
       for (i in 1:p) {
         ind_noi <- ind_noi_all[,i]
