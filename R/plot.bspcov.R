@@ -79,10 +79,16 @@ plot.bspcov <- function(x, ..., cols, rows) {
       nchain <- length(x$Sigma)
       mcmc_list <- list()
       
+      # Get burn-in and nmc information from the object
+      burnin <- if(!is.null(x$burnin)) x$burnin else 1000  # default fallback
+      nmc <- if(!is.null(x$nmc)) x$nmc else nrow(x$Sigma[[1]])
+      start_iter <- burnin + 1  # First iteration after burn-in
+      end_iter <- burnin + nmc  # Last iteration
+      
       for (i in 1:nchain) {
         chain_sample <- t(apply(x$Sigma[[i]], 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
         colnames(chain_sample) <- paste('sigma[',rows,',',cols,']',sep='')
-        mcmc_list[[i]] <- coda::mcmc(chain_sample)
+        mcmc_list[[i]] <- coda::mcmc(chain_sample, start = start_iter, end = end_iter)
       }
       
       # Convert to mcmc.list and plot with ggmcmc
@@ -90,10 +96,17 @@ plot.bspcov <- function(x, ..., cols, rows) {
       mcmc_list %>% ggmcmc::ggs() %>% ggmcmc::ggs_traceplot()
       
     } else {
-      # Single chain case (original code)
+      # Single chain case - include burn-in information
       post.sample <- t(apply(x$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
       colnames(post.sample) <- paste('sigma[',rows,',',cols,']',sep='')
-      post.sample %>% coda::mcmc() %>% ggmcmc::ggs() %>% ggmcmc::ggs_traceplot()
+      
+      # Get burn-in and nmc information from the object
+      burnin <- if(!is.null(x$burnin)) x$burnin else 1000  # default fallback
+      nmc <- if(!is.null(x$nmc)) x$nmc else nrow(x$Sigma)
+      start_iter <- burnin + 1  # First iteration after burn-in
+      end_iter <- burnin + nmc  # Last iteration
+      
+      post.sample %>% coda::mcmc(start = start_iter, end = end_iter) %>% ggmcmc::ggs() %>% ggmcmc::ggs_traceplot()
     }
   } else {
     if (x$ppp == 'cv.band') {

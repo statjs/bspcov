@@ -38,6 +38,8 @@
 #' \item{p}{dimension of covariance matrix.}
 #' \item{mcmctime}{elapsed time for MCMC sampling. For multiple chains, this becomes a list.}
 #' \item{nchain}{number of chains used.}
+#' \item{burnin}{number of burn-in samples discarded.}
+#' \item{nmc}{number of MCMC samples retained for analysis.}
 #' @author Kyoungjae Lee, Seongil Jo, and Kyeongwon Lee
 #' @seealso sbmspcov
 #' @keywords sparse covariance
@@ -138,6 +140,8 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
     out$prior <- 'bmsp'
     out$p <- out_list[[1]]$p
     out$n_chain <- nchain
+    out$burnin <- out_list[[1]]$burnin
+    out$nmc <- out_list[[1]]$nmc
     out$Sigma <- list()
     out$Phi <- list()
     out$mcmctime <- list()
@@ -296,6 +300,8 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
   out$p <- p
   out$mcmctime <- elapsed.time
   out$nchain <- 1
+  out$burnin <- burnin
+  out$nmc <- nmc
   class(out) <- 'bspcov'
   out
 }

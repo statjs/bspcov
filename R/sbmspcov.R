@@ -50,6 +50,8 @@
 #' \item{cutoff}{the cutoff value specified by FNR-approach. For multiple chains, this becomes a list.}
 #' \item{mcmctime}{elapsed time for MCMC sampling. For multiple chains, this becomes a list.}
 #' \item{nchain}{number of chains used.}
+#' \item{burnin}{number of burn-in samples discarded.}
+#' \item{nmc}{number of MCMC samples retained for analysis.}
 #' @author Kyoungjae Lee, Seongil Jo, and Kyeongwon Lee
 #' @seealso bmspcov
 #' @keywords sparse covariance
@@ -157,6 +159,8 @@ sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()
     out$prior <- 'sbmsp'
     out$p <- out_list[[1]]$p
     out$nchain <- nchain
+    out$burnin <- out_list[[1]]$burnin
+    out$nmc <- out_list[[1]]$nmc
     out$Sigma <- list()
     out$Phi <- list()
     out$INDzero <- list()
@@ -226,6 +230,8 @@ sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()
     out$cutoff <- C.th
   }
   out$nchain <- 1
+  out$burnin <- mcvals$burnin
+  out$nmc <- mcvals$nmc
   class(out) <- 'bspcov'
   out
 }
@@ -373,5 +379,7 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
   out$Sigma <- Sigma_save
   out$Phi <- Phi_save
   out$mcmctime <- elapsed.time
+  out$burnin <- burnin
+  out$nmc <- nmc
   out
 }

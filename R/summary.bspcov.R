@@ -74,10 +74,16 @@ summary.bspcov <- function(object, cols, rows, quantiles = c(0.025, 0.25, 0.5, 0
     
     cat("Number of chains:", nchain, "\n\n")
     
+    # Get burn-in and nmc information from the object
+    burnin <- if(!is.null(object$burnin)) object$burnin else 1000  # default fallback
+    nmc <- if(!is.null(object$nmc)) object$nmc else nrow(object$Sigma[[1]])
+    start_iter <- burnin + 1  # First iteration after burn-in
+    end_iter <- burnin + nmc  # Last iteration
+    
     for (i in 1:nchain) {
       chain_sample <- t(apply(object$Sigma[[i]], 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
       colnames(chain_sample) <- paste('sigma[',rows,',',cols,']',sep='')
-      mcmc_list[[i]] <- coda::as.mcmc(chain_sample)
+      mcmc_list[[i]] <- coda::mcmc(chain_sample, start = start_iter, end = end_iter)
     }
     
     # Convert to mcmc.list
@@ -121,9 +127,17 @@ summary.bspcov <- function(object, cols, rows, quantiles = c(0.025, 0.25, 0.5, 0
     ))
     
   } else {
-    # Single chain case
-    post.sample <- coda::as.mcmc(t(apply(object$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE]))
+    # Single chain case - include burn-in information
+    post.sample <- t(apply(object$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
     colnames(post.sample) <- paste('sigma[',rows,',',cols,']',sep='')
+    
+    # Get burn-in and nmc information from the object
+    burnin <- if(!is.null(object$burnin)) object$burnin else 1000  # default fallback
+    nmc <- if(!is.null(object$nmc)) object$nmc else nrow(object$Sigma)
+    start_iter <- burnin + 1  # First iteration after burn-in
+    end_iter <- burnin + nmc  # Last iteration
+    
+    post.sample <- coda::mcmc(post.sample, start = start_iter, end = end_iter)
     
     # Get summary with custom quantiles
     basic_summary <- summary(post.sample, quantiles = quantiles, ...)

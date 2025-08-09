@@ -45,6 +45,8 @@ The list includes the following integers (with default values in parentheses):
 \item{p}{dimension of covariance matrix.}
 \item{mcmctime}{elapsed time for MCMC sampling. For multiple chains, this becomes a list.}
 \item{nchain}{number of chains used.}
+\item{burnin}{number of burn-in samples discarded.}
+\item{nmc}{number of MCMC samples retained for analysis.}
 }
 \description{
 Provides a Bayesian sparse and positive definite estimate of a covariance matrix via the beta-mixture shrinkage prior.
