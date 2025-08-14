@@ -10,3 +10,4 @@
 ^examples$
 ^figs$
 ^bspcov_.*\.tar\.gz$
+^CHANGELOG\.md$

@@ -16,10 +16,11 @@
 \item{rows}{a scalar or a vector including specific row indices greater than or equal to columns indices for the trace plot.}
 }
 \value{
-\item{plot}{a plot for diagnostics of posterior samples \strong{x}.}
+\item{plot}{a plot for diagnostics of posterior samples \strong{x}. For multiple chains, returns colored trace plots with each chain in a different color.}
 }
 \description{
-Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation
+Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation.
+For multiple chains, each chain is displayed in a different color for convergence assessment.
 }
 \examples{
 
@@ -64,5 +65,5 @@ if (!inherits(future::plan(), "sequential")) future::plan(future::sequential)
 
 }
 \author{
-Seongil Jo
+Seongil Jo and Kyeongwon Lee
 }
