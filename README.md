@@ -1,6 +1,13 @@
 # bspcov
 
-![license](https://img.shields.io/badge/Licence-GPL--2-blue.svg)
+[![license](https://img.shields.io/badge/License-GPL--2-blue.svg)](https://github.com/statjs/bspcov/blob/main/LICENSE.txt)
+[![R](https://img.shields.io/badge/R-%3E%3D4.2-blue.svg)](https://cran.r-project.org/package=bspcov)
+[![release](https://img.shields.io/github/v/release/statjs/bspcov)](https://github.com/statjs/bspcov/releases/latest)
+[![Check R packages](https://github.com/statjs/bspcov/actions/workflows/check.yml/badge.svg)](https://github.com/statjs/bspcov/actions/workflows/check.yml)
+[![Deploy R packages](https://github.com/statjs/bspcov/actions/workflows/deploy.yml/badge.svg)](https://github.com/statjs/bspcov/actions/workflows/deploy.yml)  
+[![dev-latest](https://img.shields.io/github/release-date-pre/statjs/bspcov?filter=dev-latest&label=dev-latest)](https://github.com/statjs/bspcov/releases/tag/dev-latest)
+[![Check R packages (dev)](https://github.com/statjs/bspcov/actions/workflows/dev-check.yml/badge.svg)](https://github.com/statjs/bspcov/actions/workflows/dev-check.yml)
+[![Deploy R packages (dev)](https://github.com/statjs/bspcov/actions/workflows/dev-deploy.yml/badge.svg)](https://github.com/statjs/bspcov/actions/workflows/dev-deploy.yml)
 
 An R package for Bayesian Sparse Estimation of a Covariance Matrix
 
