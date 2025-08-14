@@ -1,4 +1,4 @@
-name: Check R packages (main, deployment)
+name: Check R packages
 
 on:
   pull_request:
