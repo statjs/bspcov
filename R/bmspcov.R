@@ -28,19 +28,11 @@
 #' The list includes the following integers (with default values in parentheses):
 #' \code{burnin (1000)} giving the number of MCMC samples in transition period,
 #' \code{nmc (1000)} giving the number of MCMC samples for analysis.
-#' @param nchain number of MCMC chains to run. Default is 1.
-#' @param seed random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.
-#' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. When TRUE, automatically sets up a multisession plan with nchain workers if no parallel plan is already configured.
-#' @param show_progress logical indicating whether to show progress bars during MCMC sampling. Default is TRUE. Automatically set to FALSE for individual chains when running in parallel.
 #'
-#' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
-#' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
+#' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix.}
+#' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix.}
 #' \item{p}{dimension of covariance matrix.}
-#' \item{mcmctime}{elapsed time for MCMC sampling. For multiple chains, this becomes a list.}
-#' \item{nchain}{number of chains used.}
-#' \item{burnin}{number of burn-in samples discarded.}
-#' \item{nmc}{number of MCMC samples retained for analysis.}
-#' @author Kyoungjae Lee, Seongil Jo, and Kyeongwon Lee
+#' @author Kyoungjae Lee and Seongil Jo
 #' @seealso sbmspcov
 #' @keywords sparse covariance
 #'
@@ -52,7 +44,6 @@
 #' @importFrom GIGrvg rgig
 #' @importFrom matrixcalc is.positive.definite
 #' @importFrom progress progress_bar
-#' @importFrom future.apply future_lapply
 #' @export
 #' @examples
 #'
@@ -83,76 +74,8 @@
 #' sqrt(mean((post.est.m - True.Sigma)^2))
 #' sqrt(mean((cov(X) - True.Sigma)^2))
 #'
-#' # Multiple chains example with parallel processing:
-#' # fout_multi <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))), 
-#' #                               nchain = 4, do.parallel = TRUE)
-#' # post.est.multi <- bspcov::estimate(fout_multi)
-#' # When do.parallel = TRUE, the function automatically sets up 
-#' # a multisession plan with nchain workers for parallel execution.
-#'
-bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
-  nchain = 1, seed = NULL, do.parallel = FALSE, show_progress = TRUE) {
+bmspcov <- function(X, Sigma, prior = list(), nsample = list()) {
   # Estimate a sparse covariance matrix using beta-mixture shrinkage prior
-  if (!is.null(seed)) {
-    set.seed(seed)
-  }
-
-  if (nchain > 1) {
-    # Generate list of results using either parallel or sequential processing
-    if (do.parallel && requireNamespace("future.apply", quietly = TRUE) && 
-        requireNamespace("future", quietly = TRUE)) {
-      # Set up parallel plan if not already configured
-      original_plan <- future::plan()
-      if (inherits(original_plan, "sequential")) {
-        future::plan(future::multisession, workers = nchain)
-        on.exit(future::plan(original_plan), add = TRUE)
-      }
-      
-      # Show parallel processing message
-      cat("Running", nchain, "chains in parallel...\n")
-      
-      tryCatch({
-        out_list <- future.apply::future_lapply(1:nchain, function(i) {
-          chain_seed <- if (is.null(seed)) NULL else seed + i - 1
-          bmspcov(X, Sigma, prior, nsample, nchain = 1, seed = chain_seed, 
-                  show_progress = FALSE)  # Disable progress bars for parallel chains
-        }, future.seed = TRUE)
-      }, error = function(e) {
-        stop("Error in parallel processing: ", e$message)
-      })
-      
-      cat("Parallel processing completed.\n")
-    } else {
-      # Sequential processing (either do.parallel = FALSE or packages not available)
-      if (do.parallel && (!requireNamespace("future.apply", quietly = TRUE) || 
-                          !requireNamespace("future", quietly = TRUE))) {
-        warning("Parallel processing requested but required packages not available. Using sequential processing.")
-      }
-      
-      out_list <- list()
-      for (i in 1:nchain) {
-        cat("Running chain", i, "of", nchain, "...\n")
-        chain_seed <- if (is.null(seed)) NULL else seed + i - 1
-        out_list[[i]] <- bmspcov(X, Sigma, prior, nsample, nchain = 1, seed = chain_seed)
-      }
-    }
-    out <- list()
-    out$prior <- 'bmsp'
-    out$p <- out_list[[1]]$p
-    out$n_chain <- nchain
-    out$burnin <- out_list[[1]]$burnin
-    out$nmc <- out_list[[1]]$nmc
-    out$Sigma <- list()
-    out$Phi <- list()
-    out$mcmctime <- list()
-    for (i in 1:nchain) {
-      out$Sigma[[i]] <- out_list[[i]]$Sigma
-      out$Phi[[i]] <- out_list[[i]]$Phi
-      out$mcmctime[[i]] <- out_list[[i]]$mcmctime
-    }
-    class(out) <- 'bspcov'
-    return(out)
-  }
 
   n <- nrow(X)
   p <- ncol(X)
@@ -189,9 +112,8 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
   lam <- 1 - n/2
 
   # initial values
-  min_eig <- min(eigen(Sigma, only.values = TRUE)$values)
-  if(min_eig <= 1e-15) {
-    Sigma <- Sigma + (-min_eig + 0.001)*diag(p)
+  if(min(eigen(Sigma)$val) <= 1e-15) {
+    Sigma <- Sigma + (-min(eigen(Sigma)$values) + 0.001)*diag(p)
   }
   C <- solve(Sigma)
   Phi <- matrix(1, p, p)
@@ -205,13 +127,9 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
   # blocked gibbs sampler
   nmcmc <- burnin + nmc
   elapsed.time <- system.time({
-    if (show_progress) {
-      pb <- progress::progress_bar$new(total = nmcmc)
-    }
+    pb <- progress::progress_bar$new(total = nmcmc)
     for (iter in 1:nmcmc) {
-      if (show_progress) {
-        pb$tick()
-      }
+      pb$tick()
 
       for (i in 1:p) {
         ind_noi <- ind_noi_all[,i]
@@ -250,8 +168,9 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
             W_chol <<- chol(W)
           }
         )
-        mu_i <- backsolve(W_chol, forwardsolve(t(W_chol), invSig11S12)) / gam
-        beta <- mu_i + backsolve(W_chol, rnorm(length(mu_i)))
+        W_i <- chol2inv(W_chol)
+        mu_i <- (W_i %*% invSig11S12)/gam
+        beta <- mvnfast::rmvn(n=1, mu=mu_i, sigma=W_i)[,,drop=TRUE]
 
         Sigma[ind_noi, i] <- beta
         Sigma[i, ind_noi] <- beta
@@ -299,9 +218,6 @@ bmspcov <- function(X, Sigma, prior = list(), nsample = list(),
   out$Phi <- Phi_save
   out$p <- p
   out$mcmctime <- elapsed.time
-  out$nchain <- 1
-  out$burnin <- burnin
-  out$nmc <- nmc
   class(out) <- 'bspcov'
   out
 }
