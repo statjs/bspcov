@@ -7,6 +7,13 @@ on:
     paths-ignore:
       - 'README.md'
       - 'LICENSE.txt'
+      - '.github/**'
+      - 'examples/**'
+      - 'figs/**'
+      - '*.Rcheck/**'
+      - '.DS_Store'
+      - 'bspcov_*.tar.gz'
+      - 'CHANGELOG.md'
 
 permissions: 
   contents: write
@@ -103,4 +110,5 @@ jobs:
             --notes-file CHANGELOG.md \
             --prerelease \
             bspcov-manual.pdf \
-            bspcov_*.tar.gz
+            bspcov_*.tar.gz \
+            bspcov_*.zip
