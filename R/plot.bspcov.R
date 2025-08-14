@@ -1,16 +1,15 @@
 #' Plot Diagnostics of Posterior Samples and Cross-Validation
 #'
-#' Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation.
-#' For multiple chains, each chain is displayed in a different color for convergence assessment.
+#' Provides a trace plot of posterior samples and a plot of a learning curve for cross-validation
 #'
 #' @param x an object from \strong{bmspcov}, \strong{sbmspcov}, \strong{cv.bandPPP}, and \strong{cv.thresPPP}.
 #' @param ... additional arguments for ggplot2.
 #' @param cols a scalar or a vector including specific column indices for the trace plot.
 #' @param rows a scalar or a vector including specific row indices greater than or equal to columns indices for the trace plot.
-#' @return \item{plot}{a plot for diagnostics of posterior samples \strong{x}. For multiple chains, returns colored trace plots with each chain in a different color.}
-#' @author Seongil Jo and Kyeongwon Lee
+#' @return \item{plot}{a plot for diagnostics of posterior samples \strong{x}.}
+#' @author Seongil Jo
 #'
-#' @importFrom coda mcmc mcmc.list
+#' @importFrom coda mcmc
 #' @importFrom ggmcmc ggs ggs_traceplot
 #' @importFrom magrittr `%>%`
 #' @importFrom mvtnorm rmvnorm
@@ -69,45 +68,14 @@ plot.bspcov <- function(x, ..., cols, rows) {
     }
     stopifnot(all(cols <= p))
     stopifnot(all(rows <= p))
-    if ((length(cols)>1) && (length(rows)>1)) {
+    if ((length(cols)>1) & (length(rows)>1)) {
       stopifnot(length(cols) == length(rows))
     }
 
-    # Handle multiple chains vs single chain
-    if (is.list(x$Sigma)) {
-      # Multiple chains case - create mcmc.list for colored traces
-      nchain <- length(x$Sigma)
-      mcmc_list <- list()
-      
-      # Get burn-in and nmc information from the object
-      burnin <- if(!is.null(x$burnin)) x$burnin else 1000  # default fallback
-      nmc <- if(!is.null(x$nmc)) x$nmc else nrow(x$Sigma[[1]])
-      start_iter <- burnin + 1  # First iteration after burn-in
-      end_iter <- burnin + nmc  # Last iteration
-      
-      for (i in 1:nchain) {
-        chain_sample <- t(apply(x$Sigma[[i]], 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
-        colnames(chain_sample) <- paste('sigma[',rows,',',cols,']',sep='')
-        mcmc_list[[i]] <- coda::mcmc(chain_sample, start = start_iter, end = end_iter)
-      }
-      
-      # Convert to mcmc.list and plot with ggmcmc
-      mcmc_list <- coda::mcmc.list(mcmc_list)
-      mcmc_list %>% ggmcmc::ggs() %>% ggmcmc::ggs_traceplot()
-      
-    } else {
-      # Single chain case - include burn-in information
-      post.sample <- t(apply(x$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
-      colnames(post.sample) <- paste('sigma[',rows,',',cols,']',sep='')
-      
-      # Get burn-in and nmc information from the object
-      burnin <- if(!is.null(x$burnin)) x$burnin else 1000  # default fallback
-      nmc <- if(!is.null(x$nmc)) x$nmc else nrow(x$Sigma)
-      start_iter <- burnin + 1  # First iteration after burn-in
-      end_iter <- burnin + nmc  # Last iteration
-      
-      post.sample %>% coda::mcmc(start = start_iter, end = end_iter) %>% ggmcmc::ggs() %>% ggmcmc::ggs_traceplot()
-    }
+    # posterior samples
+    post.sample <- t(apply(x$Sigma, 1, ks::invvech)[(cols-1)*p+rows,,drop=FALSE])
+    colnames(post.sample) <- paste('sigma[',rows,',',cols,']',sep='')
+    post.sample %>% mcmc %>% ggs %>% ggs_traceplot
   } else {
     if (x$ppp == 'cv.band') {
       ggplot2::qplot(y = x$elpd$logpdf, ylab = 'Expected Log Predictive Density (ELPD)', ...) +

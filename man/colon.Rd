@@ -5,7 +5,7 @@
 \alias{colon}
 \title{colon dataset}
 \format{
-data.frame
+`data.frame`
 }
 \source{
 http://genomics-pubs.princeton.edu/oncology/affydata/.

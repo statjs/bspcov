@@ -5,7 +5,7 @@
 \alias{SP500}
 \title{SP500 dataset}
 \format{
-list
+`list`
 }
 \source{
 State Street Global Advisors.

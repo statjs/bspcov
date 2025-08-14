@@ -4,7 +4,7 @@
 
 An R package for Bayesian Sparse Estimation of a Covariance Matrix
 
-![S&P 500 Example](https://github.com/statjs/bspcov/blob/main/figs/thresPPPheatmap.png?raw=true "SP 500 Example")
+![S&P 500 Example](./figs/thresPPPheatmap.png?raw=true "SP 500 Example")
 
 ## Building
 
@@ -12,11 +12,7 @@ To build the package from source, you need to have the following:
 
 ```R
 # lock the renv
-pkgs <- c("GIGrvg", "coda", "progress", "BayesFactor", "MASS", "mvnfast", 
-          "matrixcalc", "matrixStats", "purrr", "dplyr", "RSpectra", "Matrix", 
-          "plyr", "CholWishart", "magrittr", "future", "furrr", "ks", "ggplot2", 
-          "ggmcmc", "caret", "FinCovRegularization", "mvtnorm", "stats", 
-          "patchwork", "reshape2", "future.apply")
+pkgs <- c("GIGrvg", "coda", "progress", "BayesFactor", "MASS", "mvnfast", "matrixcalc", "matrixStats", "purrr", "dplyr", "RSpectra", "Matrix", "plyr", "CholWishart", "magrittr", "future", "furrr", "ks", "ggplot2", "ggmcmc", "caret", "FinCovRegularization", "mvtnorm")
 renv::snapshot(packages = pkgs)
 
 # update docs

@@ -4,16 +4,7 @@
 \alias{bmspcov}
 \title{Bayesian Sparse Covariance Estimation}
 \usage{
-bmspcov(
-  X,
-  Sigma,
-  prior = list(),
-  nsample = list(),
-  nchain = 1,
-  seed = NULL,
-  do.parallel = FALSE,
-  show_progress = TRUE
-)
+bmspcov(X, Sigma, prior = list(), nsample = list())
 }
 \arguments{
 \item{X}{a n \eqn{\times} p data matrix with column mean zero.}
@@ -30,23 +21,11 @@ The list includes the following parameters (with default values in parentheses):
 The list includes the following integers (with default values in parentheses):
 \code{burnin (1000)} giving the number of MCMC samples in transition period,
 \code{nmc (1000)} giving the number of MCMC samples for analysis.}
-
-\item{nchain}{number of MCMC chains to run. Default is 1.}
-
-\item{seed}{random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.}
-
-\item{do.parallel}{logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. When TRUE, automatically sets up a multisession plan with nchain workers if no parallel plan is already configured.}
-
-\item{show_progress}{logical indicating whether to show progress bars during MCMC sampling. Default is TRUE. Automatically set to FALSE for individual chains when running in parallel.}
 }
 \value{
-\item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
-\item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
+\item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix.}
+\item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix.}
 \item{p}{dimension of covariance matrix.}
-\item{mcmctime}{elapsed time for MCMC sampling. For multiple chains, this becomes a list.}
-\item{nchain}{number of chains used.}
-\item{burnin}{number of burn-in samples discarded.}
-\item{nmc}{number of MCMC samples retained for analysis.}
 }
 \description{
 Provides a Bayesian sparse and positive definite estimate of a covariance matrix via the beta-mixture shrinkage prior.
@@ -96,13 +75,6 @@ post.est.m <- bspcov::estimate(fout)
 sqrt(mean((post.est.m - True.Sigma)^2))
 sqrt(mean((cov(X) - True.Sigma)^2))
 
-# Multiple chains example with parallel processing:
-# fout_multi <- bspcov::bmspcov(X = X, Sigma = diag(diag(cov(X))), 
-#                               nchain = 4, do.parallel = TRUE)
-# post.est.multi <- bspcov::estimate(fout_multi)
-# When do.parallel = TRUE, the function automatically sets up 
-# a multisession plan with nchain workers for parallel execution.
-
 }
 \references{
 Lee, K., Jo, S., and Lee, J. (2022), "The beta-mixture shrinkage prior for sparse covariances with near-minimax posterior convergence rate",
@@ -112,7 +84,7 @@ Lee, K., Jo, S., and Lee, J. (2022), "The beta-mixture shrinkage prior for spars
 sbmspcov
 }
 \author{
-Kyoungjae Lee, Seongil Jo, and Kyeongwon Lee
+Kyoungjae Lee and Seongil Jo
 }
 \keyword{covariance}
 \keyword{sparse}
