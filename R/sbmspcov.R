@@ -38,13 +38,21 @@
 #' The list includes the following integers (with default values in parentheses):
 #' \code{burnin (1000)} giving the number of MCMC samples in transition period,
 #' \code{nmc (1000)} giving the number of MCMC samples for analysis.
+#' @param nchain number of MCMC chains to run. Default is 1.
+#' @param seed random seed for reproducibility. If NULL, no seed is set. For multiple chains, each chain gets seed + i - 1.
+#' @param do.parallel logical indicating whether to run multiple chains in parallel using future.apply. Default is FALSE. When TRUE, automatically sets up a multisession plan with nchain workers if no parallel plan is already configured.
+#' @param show_progress logical indicating whether to show progress bars during MCMC sampling. Default is TRUE. Automatically set to FALSE for individual chains when running in parallel.
 #'
-#' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix.}
+#' @return \item{Sigma}{a nmc \eqn{\times} p(p+1)/2 matrix including lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
 #' \item{p}{dimension of covariance matrix.}
-#' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix.}
-#' \item{INDzero}{a list including indices of off-diagonal elements screened by sure screening.}
-#' \item{cutoff}{the cutoff value specified by FNR-approach.}
-#' @author Kyoungjae Lee and Seongil Jo
+#' \item{Phi}{a nmc \eqn{\times} p(p+1)/2 matrix including shrinkage parameters corresponding to lower triangular elements of covariance matrix. For multiple chains, this becomes a list of matrices.}
+#' \item{INDzero}{a list including indices of off-diagonal elements screened by sure screening. For multiple chains, this becomes a list of lists.}
+#' \item{cutoff}{the cutoff value specified by FNR-approach. For multiple chains, this becomes a list.}
+#' \item{mcmctime}{elapsed time for MCMC sampling. For multiple chains, this becomes a list.}
+#' \item{nchain}{number of chains used.}
+#' \item{burnin}{number of burn-in samples discarded.}
+#' \item{nmc}{number of MCMC samples retained for analysis.}
+#' @author Kyoungjae Lee, Seongil Jo, and Kyeongwon Lee
 #' @seealso bmspcov
 #' @keywords sparse covariance
 #'
@@ -55,6 +63,7 @@
 #' @importFrom mvnfast rmvn
 #' @importFrom GIGrvg rgig
 #' @importFrom progress progress_bar
+#' @importFrom future.apply future_lapply
 #' @export
 #'
 #' @examples
@@ -86,17 +95,96 @@
 #' sqrt(mean((post.est.m - True.Sigma)^2))
 #' sqrt(mean((cov(X) - True.Sigma)^2))
 #'
-sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()) {
+#' # Multiple chains example with parallel processing:
+#' # fout_multi <- bspcov::sbmspcov(X = X, Sigma = diag(diag(cov(X))), 
+#' #                                nchain = 4, seed = 123, do.parallel = TRUE)
+#' # post.est.multi <- bspcov::estimate(fout_multi)
+#' # summary(fout_multi, cols = 1, rows = 1:3)  # Shows MCMC diagnostics
+#' # plot(fout_multi, cols = 1, rows = 1:3)     # Shows colored trace plots
+#' # When do.parallel = TRUE, the function automatically sets up 
+#' # a multisession plan with nchain workers for parallel execution.
+#'
+sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list(),
+  nchain = 1, seed = NULL, do.parallel = FALSE, show_progress = TRUE) {
   # Estimate a sparse covariance matrix using the screened beta-mixture shrinkage prior
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
 
+  # Initialize cutoff method early to avoid issues in parallel processing
+  if (is.null(cutoff$method)) {
+    cutoff$method <- 'FNR'
+  }
+
+  if (nchain > 1) {
+    # Generate list of results using either parallel or sequential processing
+    if (do.parallel && requireNamespace("future.apply", quietly = TRUE) && 
+        requireNamespace("future", quietly = TRUE)) {
+      # Set up parallel plan if not already configured
+      original_plan <- future::plan()
+      if (inherits(original_plan, "sequential")) {
+        future::plan(future::multisession, workers = nchain)
+        on.exit(future::plan(original_plan), add = TRUE)
+      }
+      
+      # Show parallel processing message
+      cat("Running", nchain, "chains in parallel...\n")
+      
+      tryCatch({
+        out_list <- future.apply::future_lapply(1:nchain, function(i) {
+          chain_seed <- if (is.null(seed)) NULL else seed + i - 1
+          sbmspcov(X, Sigma, cutoff, prior, nsample, nchain = 1, seed = chain_seed, 
+                   show_progress = FALSE)  # Disable progress bars for parallel chains
+        }, future.seed = TRUE)
+      }, error = function(e) {
+        stop("Error in parallel processing: ", e$message)
+      })
+      
+      cat("Parallel processing completed.\n")
+    } else {
+      # Sequential processing (either do.parallel = FALSE or packages not available)
+      if (do.parallel && (!requireNamespace("future.apply", quietly = TRUE) || 
+                          !requireNamespace("future", quietly = TRUE))) {
+        warning("Parallel processing requested but required packages not available. Using sequential processing.")
+      }
+      
+      out_list <- list()
+      for (i in 1:nchain) {
+        cat("Running chain", i, "of", nchain, "...\n")
+        chain_seed <- if (is.null(seed)) NULL else seed + i - 1
+        out_list[[i]] <- sbmspcov(X, Sigma, cutoff, prior, nsample, nchain = 1, seed = chain_seed)
+      }
+    }
+    out <- list()
+    out$prior <- 'sbmsp'
+    out$p <- out_list[[1]]$p
+    out$nchain <- nchain
+    out$burnin <- out_list[[1]]$burnin
+    out$nmc <- out_list[[1]]$nmc
+    out$Sigma <- list()
+    out$Phi <- list()
+    out$INDzero <- list()
+    out$mcmctime <- list()
+    if (cutoff$method == 'FNR') {
+      out$cutoff <- list()
+    }
+    for (i in 1:nchain) {
+      out$Sigma[[i]] <- out_list[[i]]$Sigma
+      out$Phi[[i]] <- out_list[[i]]$Phi
+      out$INDzero[[i]] <- out_list[[i]]$INDzero
+      out$mcmctime[[i]] <- out_list[[i]]$mcmctime
+      if (cutoff$method == 'FNR') {
+        out$cutoff[[i]] <- out_list[[i]]$cutoff
+      }
+    }
+    class(out) <- 'bspcov'
+    return(out)
+  }
   n <- dim(X)[1]
   p <- dim(X)[2]
   stopifnot(p > 1)
 
-  # Select a cutoff
-  if (is.null(cutoff$method)) {
-    cutoff$method <- 'FNR'
-  }
+  # Select a cutoff (method already initialized above)
   if (cutoff$method == 'FNR') {
     cutoff_vals <- list(rho=0.25, FNR=0.05, nsimdata=1000)
     cutoff_vals[names(cutoff)] <- cutoff
@@ -133,13 +221,17 @@ sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()
   # Estimating covariance using SBM prior
   sbmout <- sbm.covest(X=X, S=crossprod(X), n=n, p=p, Sigma=Sigma, a=privals$a, b=privals$b,
                        lambda=privals$lambda, tau1sq=privals$tau1sq,
-                       INDzero, burnin=mcvals$burnin, nmc=mcvals$nmc)
+                       INDzero, burnin=mcvals$burnin, nmc=mcvals$nmc, 
+                       show_progress=show_progress)
 
   out <- sbmout
   out$INDzero <- INDzero
   if (cutoff$method == 'FNR') {
     out$cutoff <- C.th
   }
+  out$nchain <- 1
+  out$burnin <- mcvals$burnin
+  out$nmc <- mcvals$nmc
   class(out) <- 'bspcov'
   out
 }
@@ -148,7 +240,7 @@ sbmspcov <- function(X, Sigma, cutoff = list(), prior = list(), nsample = list()
 
 
 # Estimating covariance using SBM prior
-sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin, nmc) {
+sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin, nmc, show_progress = TRUE) {
 
   ind_noi_all <- list()
   ind_nozeroi_all <- list()
@@ -158,7 +250,7 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
     if (length(INDzero[[i]])>0) {
       ind_nozeroi_all[[i]] <- (1:p)[-c(i,INDzero[[i]])]
       ind_tmp <- c()
-      for (j in 1:length(INDzero[[i]])) {
+      for (j in seq_along(INDzero[[i]])) {
         ind_tmp <- c(ind_tmp, which(INDzero[[i]][j] == ind_noi_all[[i]]))
       }
       ind_noi_add_all[[i]] <- (1:(p-1))[-ind_tmp]
@@ -172,9 +264,9 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
   Sigma_save <- Phi_save <- matrix(0, nrow = nmc, ncol = p*(p+1)/2)
 
   # initial values
-  Rho <- matrix(0.5, p, p)
-  if(min(eigen(Sigma)$val) <= 1e-15) {
-    Sigma <- Sigma + (-min(eigen(Sigma)$values) + 0.001)*diag(p)
+  min_eig <- min(eigen(Sigma, only.values = TRUE)$values)
+  if(min_eig <= 1e-15) {
+    Sigma <- Sigma + (-min_eig + 0.001)*diag(p)
   }
   C <- solve(Sigma)
   tau <- matrix(tau1sq, p, p)
@@ -184,10 +276,14 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
   lam <- 1-n/2
 
   # blocked gibbs sampler
-  pb <- progress::progress_bar$new(total = burnin+nmc)
+  if (show_progress) {
+    pb <- progress::progress_bar$new(total = burnin+nmc)
+  }
   elapsed.time <- system.time({
   for (iter in 1:(burnin+nmc)) {
-    pb$tick()
+    if (show_progress) {
+      pb$tick()
+    }
 
     for (i in 1:p) {
       ind_noi <- ind_noi_all[[i]]
@@ -232,9 +328,8 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
             W_chol <<- chol(W)
           }
         )
-        W_i <- chol2inv(W_chol)
-        mu_i <- (W_i %*% invSig11S12.reduced)/gam
-        beta <- mvnfast::rmvn(n=1, mu=mu_i, sigma=W_i)[,,drop=TRUE]
+        mu_i <- backsolve(W_chol, forwardsolve(t(W_chol), invSig11S12.reduced)) / gam
+        beta <- mu_i + backsolve(W_chol, rnorm(length(mu_i)))
 
         Sigma[ind_nozeroi, i] <- beta
         Sigma[i, ind_nozeroi] <- beta
@@ -284,5 +379,7 @@ sbm.covest <- function(X, S, n, p, Sigma, a, b, lambda, tau1sq, INDzero, burnin,
   out$Sigma <- Sigma_save
   out$Phi <- Phi_save
   out$mcmctime <- elapsed.time
+  out$burnin <- burnin
+  out$nmc <- nmc
   out
 }
