@@ -2,35 +2,73 @@
 % Please edit documentation in R/plot.postmean.bspcov.R
 \name{plot.postmean.bspcov}
 \alias{plot.postmean.bspcov}
-\title{Draw a Heat Map for Point Estimate of Covariance Matrix}
+\title{Plot method for postmean.bspcov objects}
 \usage{
-\method{plot}{postmean.bspcov}(x, ...)
+\method{plot}{postmean.bspcov}(
+  x,
+  title = NULL,
+  color_limits = NULL,
+  color_low = "black",
+  color_high = "white",
+  base_size = 14,
+  legend_position = "bottom",
+  x_label = "Variable",
+  y_label = "Variable",
+  show_values = FALSE,
+  ...
+)
 }
 \arguments{
-\item{x}{an object from \strong{estimate}.}
+\item{x}{an object of class \code{postmean.bspcov} from \code{estimate()} function.}
 
-\item{...}{additional arguments for ggplot2.}
+\item{title}{character string for plot title. If NULL, auto-generated title is used.}
+
+\item{color_limits}{optional vector of length 2 specifying color scale limits. If NULL, computed from data.}
+
+\item{color_low}{color for low values in heatmap. Default is "black".}
+
+\item{color_high}{color for high values in heatmap. Default is "white".}
+
+\item{base_size}{base font size for plot theme. Default is 14.}
+
+\item{legend_position}{position of legend. Default is "bottom".}
+
+\item{x_label}{label for x-axis. Default is "Variable".}
+
+\item{y_label}{label for y-axis. Default is "Variable".}
+
+\item{show_values}{logical indicating whether to display values on tiles. Default is FALSE.}
+
+\item{...}{additional arguments passed to plotting functions.}
 }
 \value{
-\item{plot}{a heatmap for point estimate of covariance matrix \strong{x}.}
+A ggplot object showing heatmap visualization of the posterior mean covariance matrix.
 }
 \description{
-Provides a heat map for posterior mean estimate of sparse covariance matrix
+Create heatmap visualization for posterior mean estimate of sparse covariance matrix.
+Provides flexible visualization options with customizable aesthetics and labeling.
 }
 \examples{
-
+\donttest{
+# Example with simulated data
 n <- 25
 p <- 50
 Sigma0 <- diag(1, p)
 X <- MASS::mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma0)
 res <- bspcov::thresPPP(X, eps=0.01, thres=list(value=0.5,fun='hard'), nsample=100)
 est <- bspcov::estimate(res)
+
+# Basic plot
 plot(est)
+
+# Plot with custom color scheme
+plot(est, color_low = "blue", color_high = "red")
+}
 
 }
 \seealso{
-estimate
+estimate, plot.bspcov, plot.quantile.bspcov
 }
 \author{
-Seongil Jo
+Seongil Jo, Kyeongwon Lee
 }
