@@ -47,6 +47,9 @@ foo.thres <- colon_bspcov[[3]]
 sigmah.bmspcov <- estimate(foo.bmspcov)
 sigmah.sbmspcov <- estimate(foo.sbmspcov)
 sigmah.thres <- estimate(foo.thres)
+quantile.bmspcov <- quantile(foo.bmspcov, probs = c(0.025, 0.5, 0.975))
+quantile.sbmspcov <- quantile(foo.sbmspcov, probs = c(0.025, 0.5, 0.975))
+quantile.thres <- quantile(foo.thres, probs = c(0.025, 0.5, 0.975))
 
 library(ggplot2)
 library(gridExtra)
@@ -60,9 +63,13 @@ library(rjags)
 library(R2jags)
 library(tictoc)
 
-# summary for diagnostics
-summary(foo.bmspcov, cols = 24:26, rows = 24:26)
-summary(foo.sbmspcov, cols = 24:26, rows = 24:26)
+# summary for diagnostics - save summary to plain text file
+summary(foo.bmspcov, cols = 24:26, rows = 24:26) %>%
+  capture.output() %>%
+  writeLines("examples/results/colon_bmspcov_summary.txt")
+summary(foo.sbmspcov, cols = 24:26, rows = 24:26) %>%
+  capture.output() %>%
+  writeLines("examples/results/colon_sbmspcov_summary.txt")
 
 # traceplots
 plot(foo.bmspcov, cols = 24:26, rows = 24:26)
@@ -78,8 +85,16 @@ options(mc.cores = parallel::detectCores())
 # visualization
 
 ## compute range for color scale
-min_sigmah <- min(c(as.numeric(sigmah.bmspcov), as.numeric(sigmah.sbmspcov), as.numeric(sigmah.thres)))
-max_sigmah <- max(c(as.numeric(sigmah.bmspcov), as.numeric(sigmah.sbmspcov), as.numeric(sigmah.thres)))
+min_sigmah <- min(c(as.numeric(sigmah.bmspcov), as.numeric(sigmah.sbmspcov), as.numeric(sigmah.thres),
+  sapply(quantile.bmspcov, min),
+  sapply(quantile.sbmspcov, min),
+  sapply(quantile.thres, min)
+))
+max_sigmah <- max(c(as.numeric(sigmah.bmspcov), as.numeric(sigmah.sbmspcov), as.numeric(sigmah.thres),
+  sapply(quantile.bmspcov, max),
+  sapply(quantile.sbmspcov, max),
+  sapply(quantile.thres, max)
+))
 cont_scale <- scale_fill_gradient(
   name   = "",
   low    = "black",
@@ -97,29 +112,32 @@ g <- p1 + p2 + p3 + plot_layout(ncol = 3, guides = "collect") &
   theme(legend.position = "bottom")
 ggsave("figs/colon.png", g, width = 15, height = 6)
 
+## plots without thres
+g_no_thres <- p1 + p2 + plot_layout(ncol = 2, guides = "collect") &
+  cont_scale &
+  theme(legend.position = "bottom")
+ggsave(filename = "figs/colon_no_thres.png", width = 12, height = 7)
+
 ## visualize the uncertainty using new quantile function
-bmspcov_quantiles <- quantile(foo.bmspcov, probs = c(0.025, 0.5, 0.975))
-g_bmspcov_u <- plot(bmspcov_quantiles,
+g_bmspcov_u <- plot(quantile.bmspcov,
   titles = c("bmspcov (2.5%)", "bmspcov (50%)", "bmspcov (97.5%)"),
   x_label = "Gene", y_label = "Gene",
   ncol = 3
-)
+) & cont_scale
 ggsave("figs/colon_bmspcov_u.png", g_bmspcov_u, width = 14, height = 6)
 
-sbmspcov_quantiles <- quantile(foo.sbmspcov, probs = c(0.025, 0.5, 0.975))
-g_sbmspcov_u <- plot(sbmspcov_quantiles,
+g_sbmspcov_u <- plot(quantile.sbmspcov,
   titles = c("sbmspcov (2.5%)", "sbmspcov (50%)", "sbmspcov (97.5%)"),
   x_label = "Gene", y_label = "Gene",
   ncol = 3
-)
+) & cont_scale
 ggsave("figs/colon_sbmspcov_u.png", g_sbmspcov_u, width = 14, height = 6)
 
-thresPPP_quantiles <- quantile(foo.thres, probs = c(0.025, 0.5, 0.975))
-g_thres_u <- plot(thresPPP_quantiles,
+g_thres_u <- plot(quantile.thres,
   titles = c("thresPPP (2.5%)", "thresPPP (50%)", "thresPPP (97.5%)"),
   x_label = "Gene", y_label = "Gene",
   ncol = 3
-)
+) & cont_scale
 ggsave("figs/colon_thresPPP_u.png", g_thres_u, width = 14, height = 6)
 
 # ------- Stan and JAGS Implementation -------
@@ -295,8 +313,23 @@ summary_table <- lapply(res, data.frame) %>%
   arrange(elapsed_mean)
 summary_table
 
-# print summary table in latex format
-knitr::kable(summary_table, format = "latex", booktabs = TRUE, digits = 4)
+# print summary table in latex format with bold formatting for best values
+summary_table_formatted <- summary_table %>%
+  mutate(
+    misclass_combined = ifelse(misclass_mean == min(misclass_mean), 
+                              paste0("\\textbf{", sprintf("%.3f", misclass_mean), " (", sprintf("%.3f", misclass_sd), ")}"), 
+                              paste0(sprintf("%.3f", misclass_mean), " (", sprintf("%.3f", misclass_sd), ")")),
+    elapsed_combined = ifelse(elapsed_mean == min(elapsed_mean), 
+                             paste0("\\textbf{", sprintf("%.3f", elapsed_mean), " (", sprintf("%.3f", elapsed_sd), ")}"), 
+                             paste0(sprintf("%.3f", elapsed_mean), " (", sprintf("%.3f", elapsed_sd), ")"))
+  ) %>%
+  select(method, misclass_combined, elapsed_combined)
+# Rename columns for better presentation
+colnames(summary_table_formatted) <- c("Method", "Misclassification Rate", "Elapsed Time (sec)")
+
+summary_kable <- knitr::kable(summary_table_formatted, format = "latex", booktabs = TRUE, escape = FALSE)
+# save to file examples/results/colon_summary.tex
+writeLines(summary_kable, "examples/results/colon_summary.tex")
 
 # Clean up temporary file
 unlink(jags_model_file)
