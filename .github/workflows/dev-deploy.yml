@@ -110,5 +110,4 @@ jobs:
             --notes-file CHANGELOG.md \
             --prerelease \
             bspcov-manual.pdf \
-            bspcov_*.tar.gz \
-            bspcov_*.zip
+            bspcov_*.tar.gz

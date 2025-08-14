@@ -108,5 +108,4 @@ jobs:
             --title "Release $VERSION" \
             --notes-file CHANGELOG.md \
             bspcov-manual.pdf \
-            bspcov_*.tar.gz \
-            bspcov_*.zip
+            bspcov_*.tar.gz
