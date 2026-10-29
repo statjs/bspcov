@@ -42,7 +42,6 @@
 #' @references Lee, K., Lee, K., and Lee, J. (2023+), "Post-processes posteriors for banded covariances",
 #' 	\emph{Bayesian Analysis}, DOI: 10.1214/22-BA1333.
 #'
-#' @importFrom purrr rerun
 #' @importFrom CholWishart rInvWishart
 #' @importFrom Matrix Matrix band
 #' @importFrom matrixcalc vech
@@ -76,7 +75,7 @@ bandPPP <- function(X, k, eps, prior = list(), nsample = 2000){
   param_initpost <- list(A = crossprod(X) + A, nu = nu + n)
 
   # post-processing step
-  Sigma_save <- purrr::rerun(nsample, CholWishart::rInvWishart(1, param_initpost$nu, param_initpost$A)[,,1] %>%
+  Sigma_save <- purrr::map(seq_len(nsample), \(i) CholWishart::rInvWishart(1, param_initpost$nu, param_initpost$A)[,,1] %>%
                                Matrix::Matrix(sparse = T) %>%
                                Matrix::band(k1 = -k, k2 = k) %>% pd_adjustment_Matrix(eps = eps)) %>%
     purrr::map(~matrixcalc::vech(as.matrix(.x)))
